@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import com.littlechoc.olddriver.R;
 import com.littlechoc.olddriver.presenter.TrackPresenter;
+import com.littlechoc.olddriver.utils.PermissionUtils;
 import com.littlechoc.olddriver.viewinterface.ITrackView;
 
 import butterknife.BindView;
@@ -41,6 +42,7 @@ public class TrackActivity extends BaseActivity implements ITrackView {
 
     trackPresenter = new TrackPresenter(this);
 
+    PermissionUtils.requestPermission(this);
     initView();
 
   }

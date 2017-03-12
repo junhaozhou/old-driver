@@ -1,5 +1,7 @@
 package com.littlechoc.olddriver.model.sensor;
 
+import android.hardware.SensorEvent;
+
 /**
  * 加速度
  *
@@ -9,6 +11,17 @@ package com.littlechoc.olddriver.model.sensor;
 public class AccelerometerModel extends SensorModel {
 
   private static final SensorModelPool<AccelerometerModel> pool = new SensorModelPool<>();
+
+  public static AccelerometerModel newInstance(SensorEvent event) {
+    AccelerometerModel model;
+    if (pool.isEmpty()) {
+      model = new AccelerometerModel();
+    } else {
+      model = pool.get();
+    }
+    model.setData(event);
+    return model;
+  }
 
   public static AccelerometerModel newInstance(float x, float y, float z, long timestamp) {
     AccelerometerModel model;

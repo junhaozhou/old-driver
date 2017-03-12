@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">老司机</string>
+    <string name="start_track">开始追踪</string>
+    <string name="stop_track">结束追踪</string>
+
+    <string name="title">老司机保我毕业</string>
+</resources>

@@ -12,11 +12,32 @@ import java.io.Serializable;
 
 public class GyroscopeModel extends SensorModel implements Serializable {
 
-  public GyroscopeModel(float x, float y, float z, long timestamp) {
-    super(x, y, z, timestamp);
+  private static final SensorModelPool<GyroscopeModel> pool = new SensorModelPool<>();
+
+  public static GyroscopeModel newInstance(SensorEvent event) {
+    GyroscopeModel model;
+    if (pool.isEmpty()) {
+      model = new GyroscopeModel();
+    } else {
+      model = pool.get();
+    }
+    model.setData(event);
+    return model;
   }
 
-  public GyroscopeModel(SensorEvent event) {
-    super(event);
+  public static GyroscopeModel newInstance(float x, float y, float z, long timestamp) {
+    GyroscopeModel model;
+    if (pool.isEmpty()) {
+      model = new GyroscopeModel();
+    } else {
+      model = pool.get();
+    }
+    model.setData(x, y, z, timestamp);
+    return model;
+  }
+
+  @Override
+  public void reuse() {
+    pool.add(this);
   }
 }

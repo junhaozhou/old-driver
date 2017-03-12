@@ -3,12 +3,45 @@ package com.littlechoc.olddriver.model.sensor;
 import android.hardware.SensorEvent;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Junhao Zhou 2017/3/12
  */
 
 public abstract class SensorModel implements Serializable {
+
+  protected static class SensorModelPool<M extends SensorModel> {
+
+    private final List<M> sensorModels = new ArrayList<>(100);
+
+    private final Object lock = new Object();
+
+    public boolean isEmpty() {
+      synchronized (lock) {
+        return sensorModels.isEmpty();
+      }
+    }
+
+    public void add(M model) {
+      synchronized (lock) {
+        sensorModels.add(model);
+      }
+    }
+
+    public M get() {
+      synchronized (lock) {
+        if (!isEmpty()) {
+          return sensorModels.remove(sensorModels.size() - 1);
+        } else {
+          return null;
+        }
+      }
+    }
+
+  }
+
 
   private long timestamp;
 
@@ -22,14 +55,14 @@ public abstract class SensorModel implements Serializable {
 
   private int accuracy;
 
-  public SensorModel(float x, float y, float z, long timestamp) {
+  void setData(float x, float y, float z, long timestamp) {
     this.x = x;
     this.y = y;
     this.z = z;
     this.timestamp = timestamp;
   }
 
-  public SensorModel(SensorEvent event) {
+  void setData(SensorEvent event) {
     if (event != null) {
       timestamp = event.timestamp;
       x = event.values[0];
@@ -63,4 +96,7 @@ public abstract class SensorModel implements Serializable {
   public int getAccuracy() {
     return accuracy;
   }
+
+  public abstract void reuse();
+
 }

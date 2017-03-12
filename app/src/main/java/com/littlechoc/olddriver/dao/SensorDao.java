@@ -75,6 +75,7 @@ public class SensorDao implements SensorEventListener {
   @Override
   public void onSensorChanged(SensorEvent event) {
     if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+
       Logger.i(TAG, "ACCELEROMETER_SENSOR_START");
       // x,y,z分别存储坐标轴x,y,z上的加速度
       float x = event.values[0];
@@ -104,7 +105,7 @@ public class SensorDao implements SensorEventListener {
       // 手机的磁场感应器从外部采集数据的时间间隔是10000微秒
       Logger.i(TAG, "minDelay ------------> %d", magneticSensor.getMinDelay());
       // 磁场感应器的最大量程
-      Logger.i(TAG, "maximumRange --------> %f" , event.sensor.getMaximumRange());
+      Logger.i(TAG, "maximumRange --------> %f", event.sensor.getMaximumRange());
       Logger.i(TAG, "x--------------------> %f", x);
       Logger.i(TAG, "y--------------------> %f", y);
       Logger.i(TAG, "z--------------------> %f", z);

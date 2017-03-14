@@ -8,6 +8,15 @@ import android.app.Application;
 
 public class BaseApplication extends Application {
 
+  private static BaseApplication instance = null;
+
+  public static BaseApplication getInstance() {
+    return instance;
+  }
+
+  public BaseApplication() {
+    instance = this;
+  }
 
   @Override
   public void onCreate() {

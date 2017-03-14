@@ -48,7 +48,6 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
 
     new TrackPresenter(this);
 
-    PermissionUtils.requestPermission(this);
     initView();
 
   }
@@ -87,14 +86,20 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
 
   @OnClick(R.id.track_switch)
   public void onTrackSwitchClick() {
-    if (isTracking) {
-      trackPresenter.stopTrack();
-      trackSwitch.setText(R.string.start_track);
-    } else {
-      trackPresenter.startTrack();
-      trackSwitch.setText(R.string.stop_track);
-    }
-    isTracking = !isTracking;
+    PermissionUtils.requestPermission(this, PermissionUtils.STORAGE_PERMISSION,
+            new PermissionUtils.OnPermissionGranted() {
+              @Override
+              public void onPermissionGranted() {
+                if (isTracking) {
+                  trackPresenter.stopTrack();
+                  trackSwitch.setText(R.string.start_track);
+                } else {
+                  trackPresenter.startTrack();
+                  trackSwitch.setText(R.string.stop_track);
+                }
+                isTracking = !isTracking;
+              }
+            });
   }
 
   @OnClick(R.id.track_switch)

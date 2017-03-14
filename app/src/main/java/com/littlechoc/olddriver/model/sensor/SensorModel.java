@@ -5,6 +5,7 @@ import android.hardware.SensorEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Junhao Zhou 2017/3/12
@@ -73,6 +74,14 @@ public abstract class SensorModel implements Serializable {
     }
   }
 
+  public void setRange(float range) {
+    this.range = range;
+  }
+
+  public void setAccuracy(int accuracy) {
+    this.accuracy = accuracy;
+  }
+
   public long getTimestamp() {
     return timestamp;
   }
@@ -99,4 +108,8 @@ public abstract class SensorModel implements Serializable {
 
   public abstract void reuse();
 
+  @Override
+  public String toString() {
+    return String.format(Locale.CHINA, "%f,%f,%f,%d", x, y, z, timestamp);
+  }
 }

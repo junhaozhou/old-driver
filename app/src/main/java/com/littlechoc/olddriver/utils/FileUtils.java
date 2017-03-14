@@ -1,9 +1,9 @@
 package com.littlechoc.olddriver.utils;
 
-import android.os.Environment;
 import android.text.TextUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Junhao Zhou 2017/3/12
@@ -11,16 +11,15 @@ import java.io.File;
 
 public class FileUtils {
 
-  private static final String SD_CARD =
-          Environment.getExternalStorageDirectory().getAbsolutePath();
+  private static final String SD_CARD = "/storage/emulated/0";
 
-  private static final String BASE_FOLDER = SD_CARD + File.pathSeparator + "old_driver";
+  private static final String BASE_FOLDER = SD_CARD + File.separator + ".0_old_driver";
 
   public static boolean createFolder(String folder) {
     if (TextUtils.isEmpty(folder)) {
       return false;
     }
-    String path = BASE_FOLDER + File.separator + folder;
+    String path = getAbsoluteFolder(folder);
     File file = new File(path);
     if (file.exists()) {
       return file.isDirectory();
@@ -29,8 +28,30 @@ public class FileUtils {
     }
   }
 
-  public static boolean createFile(String folder, String file) {
-    return false;
+  public static File createFile(String folder, String fileName, String suffix) {
+    return createFile(folder, fileName + "." + suffix);
+  }
+
+  public static File createFile(String folder, String fileName) {
+    if (createFolder(folder)) {
+      File file = new File(getAbsoluteFolder(folder), fileName);
+      if (!file.exists()) {
+        try {
+          if (file.createNewFile()) {
+            return file;
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      } else {
+        return file;
+      }
+    }
+    return null;
+  }
+
+  private static String getAbsoluteFolder(String relativeFolder) {
+    return BASE_FOLDER + File.separator + relativeFolder;
   }
 
 }

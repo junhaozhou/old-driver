@@ -12,6 +12,7 @@ import android.widget.Button;
 import com.littlechoc.olddriver.R;
 import com.littlechoc.olddriver.contract.TrackContract;
 import com.littlechoc.olddriver.presenter.TrackPresenter;
+import com.littlechoc.olddriver.ui.base.BaseActivity;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 
 import butterknife.BindView;
@@ -102,7 +103,7 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
             });
   }
 
-  @OnClick(R.id.track_switch)
+  @OnClick(R.id.analyse)
   public void onAnalyseClick() {
     trackPresenter.openAnalyseActivity();
   }

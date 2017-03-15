@@ -50,7 +50,7 @@ public class FileUtils {
     return null;
   }
 
-  private static String getAbsoluteFolder(String relativeFolder) {
+  public static String getAbsoluteFolder(String relativeFolder) {
     return BASE_FOLDER + File.separator + relativeFolder;
   }
 

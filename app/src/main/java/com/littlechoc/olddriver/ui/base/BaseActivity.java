@@ -1,4 +1,4 @@
-package com.littlechoc.olddriver.ui;
+package com.littlechoc.olddriver.ui.base;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;

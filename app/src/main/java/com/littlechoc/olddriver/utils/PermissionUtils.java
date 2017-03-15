@@ -8,7 +8,7 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 
 import com.littlechoc.olddriver.BaseApplication;
-import com.littlechoc.olddriver.ui.BaseActivity;
+import com.littlechoc.olddriver.ui.base.BaseActivity;
 
 import java.lang.ref.WeakReference;
 

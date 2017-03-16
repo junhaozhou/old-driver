@@ -15,7 +15,9 @@ public interface TrackContract {
 
     void startTrack();
 
-    void openAnalyseActivity();
+    void openDisplayActivity();
+
+    void openHistoryActivity();
 
     void setIfLogSensor(boolean ifLog);
   }

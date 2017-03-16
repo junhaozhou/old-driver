@@ -5,6 +5,13 @@
     >
 
     <item
+        android:id="@+id/history"
+        android:icon="@drawable/ic_history"
+        android:title="@string/menu_history"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
         android:id="@+id/enable_sensor_log"
         android:title="@string/menu_enable_sensor_log"
         app:showAsAction="collapseActionView"

@@ -8,7 +8,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.text.TextUtils;
 
-import com.littlechoc.olddriver.BuildConfig;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.TrackContract;
 import com.littlechoc.olddriver.dao.SensorDao;
@@ -16,6 +15,7 @@ import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
 import com.littlechoc.olddriver.ui.DisplayActivity;
+import com.littlechoc.olddriver.ui.HistoryActivity;
 import com.littlechoc.olddriver.utils.Logger;
 
 /**
@@ -40,7 +40,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
 
   private String lastFolder;
 
-  private boolean logSensor = BuildConfig.DEBUG;
+  private boolean logSensor = false;
 
   public TrackPresenter(TrackContract.View trackView) {
     assert trackView != null;
@@ -83,10 +83,16 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     }
   }
 
-  public void openAnalyseActivity() {
+  public void openDisplayActivity() {
     Intent intent = new Intent(trackView.getContext(), DisplayActivity.class);
     intent.putExtra(Constants.KEY_FOLDER_NAME, lastFolder);
     trackView.getContext().startActivity(intent);
+  }
+
+  @Override
+  public void openHistoryActivity() {
+    trackView.getContext()
+            .startActivity(new Intent(trackView.getContext(), HistoryActivity.class));
   }
 
   @Override

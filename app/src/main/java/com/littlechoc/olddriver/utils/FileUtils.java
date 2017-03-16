@@ -54,4 +54,22 @@ public class FileUtils {
     return BASE_FOLDER + File.separator + relativeFolder;
   }
 
+  public static File getRootFile() {
+    return new File(BASE_FOLDER);
+  }
+
+  public static boolean delete(File file) {
+    boolean res = true;
+    if (file != null && file.exists()) {
+      if (file.isDirectory()) {
+        File[] children = file.listFiles();
+        for (File child : children) {
+          delete(child);
+        }
+      }
+      res = file.delete();
+    }
+    return res;
+  }
+
 }

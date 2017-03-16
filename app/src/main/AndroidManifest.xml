@@ -15,7 +15,11 @@
         android:theme="@style/AppTheme"
         >
 
-        <activity android:name=".ui.TrackActivity">
+        <activity
+            android:name=".ui.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -24,7 +28,13 @@
 
         <activity
             android:name=".ui.DisplayActivity"
+            android:theme="@style/AppTheme"
+            />
+
+        <activity
+            android:name=".ui.HistoryActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
             />
     </application>
 

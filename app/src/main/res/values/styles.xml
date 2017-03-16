@@ -11,4 +11,8 @@
         <item name="windowActionBar">false</item>
     </style>
 
+    <style name="TitleBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="Popup" parent="ThemeOverlay.AppCompat.Light"/>
+
 </resources>

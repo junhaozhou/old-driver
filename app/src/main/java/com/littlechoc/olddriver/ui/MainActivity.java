@@ -22,7 +22,7 @@ import butterknife.OnClick;
  * @author Junhao Zhou 2017/3/7
  */
 
-public class TrackActivity extends BaseActivity implements TrackContract.View {
+public class MainActivity extends BaseActivity implements TrackContract.View {
 
   @BindView(R.id.title_bar)
   public Toolbar titleBar;
@@ -40,7 +40,7 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
 
   @Override
   public int getRootView() {
-    return R.layout.activity_track;
+    return R.layout.activity_main;
   }
 
   @Override
@@ -62,7 +62,7 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu_track_activity, menu);
+    getMenuInflater().inflate(R.menu.menu_main_activity, menu);
     return super.onCreateOptionsMenu(menu);
   }
 
@@ -74,6 +74,9 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
         break;
       case R.id.disable_sensor_log:
         trackPresenter.setIfLogSensor(false);
+        break;
+      case R.id.history:
+        trackPresenter.openHistoryActivity();
         break;
     }
     return super.onOptionsItemSelected(item);
@@ -105,7 +108,7 @@ public class TrackActivity extends BaseActivity implements TrackContract.View {
 
   @OnClick(R.id.analyse)
   public void onAnalyseClick() {
-    trackPresenter.openAnalyseActivity();
+    trackPresenter.openDisplayActivity();
   }
 
   @Override

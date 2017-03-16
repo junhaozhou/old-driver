@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="item_height_two_line">72dp</dimen>
+    <dimen name="padding_content">16dp</dimen>
+
+    <dimen name="padding_list">8dp</dimen>
+
+    <dimen name="text_primary">16sp</dimen>
+    <dimen name="text_secondary">14sp</dimen>
+</resources>

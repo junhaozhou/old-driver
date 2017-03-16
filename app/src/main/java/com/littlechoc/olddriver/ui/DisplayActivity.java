@@ -78,7 +78,7 @@ public class DisplayActivity extends BaseActivity implements DisplayContract.Vie
         finish();
       }
     });
-    setSupportActionBar(titleBar);
+//    setSupportActionBar(titleBar);
 
     displayFragmentAdapter = new DisplayFragmentAdapter(getSupportFragmentManager(), displayPresenter.createFragments(folderName));
     viewPager.setAdapter(displayFragmentAdapter);

@@ -14,6 +14,10 @@ public interface SensorDetailContract {
 
   interface View extends BaseView<Presenter> {
 
+    void initChart();
+
+    void initYAxis(float max, float min);
+
     void updateChart();
   }
 

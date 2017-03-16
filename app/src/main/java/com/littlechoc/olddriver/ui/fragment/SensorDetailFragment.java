@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -85,27 +88,33 @@ public class SensorDetailFragment extends BasePagerFragment implements SensorDet
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    initChart();
+    sensorDetailPresenter.analyseData(folderName, sensorType);
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
   }
 
   private List<Entry> values;
 
-  private void initChart() {
+  public void initChart() {
     chart.getDescription().setEnabled(false);
     chart.setTouchEnabled(true);
     chart.setDragEnabled(true);
     chart.setScaleEnabled(true);
-    chart.setPinchZoom(true);
+//    chart.setPinchZoom(true);
 
     initSet();
   }
 
   private void initSet() {
     values = new ArrayList<>();
+    sensorDetailPresenter.bindDataSet(values);
     LineDataSet set = new LineDataSet(values, "test");
     set.setColor(Color.BLACK);
-    set.setValueTextSize(9f);
     set.setLineWidth(1f);
+    set.setFormLineWidth(2);
 
     List<ILineDataSet> dataSets = new ArrayList<>();
     dataSets.add(set);
@@ -113,6 +122,42 @@ public class SensorDetailFragment extends BasePagerFragment implements SensorDet
     LineData data = new LineData(dataSets);
 
     chart.setData(data);
+  }
+
+  public void initYAxis(float max, float min) {
+
+    LimitLine llXAxis = new LimitLine(10f, "Index 10");
+    llXAxis.setLineWidth(4f);
+    llXAxis.enableDashedLine(10f, 10f, 0f);
+    llXAxis.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+    llXAxis.setTextSize(10f);
+
+    XAxis xAxis = chart.getXAxis();
+    xAxis.setAxisMinimum(0);
+    xAxis.setAxisMaximum(200);
+    xAxis.enableGridDashedLine(10f, 10f, 0f);
+
+    LimitLine ll1 = new LimitLine(150f, "Upper Limit");
+    ll1.setLineWidth(4f);
+    ll1.enableDashedLine(10f, 10f, 0f);
+    ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+    ll1.setTextSize(10f);
+
+    LimitLine ll2 = new LimitLine(-30f, "Lower Limit");
+    ll2.setLineWidth(4f);
+    ll2.enableDashedLine(10f, 10f, 0f);
+    ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+    ll2.setTextSize(10f);
+
+    YAxis leftAxis = chart.getAxisLeft();
+    leftAxis.removeAllLimitLines();
+    leftAxis.addLimitLine(ll1);
+    leftAxis.addLimitLine(ll2);
+    leftAxis.setAxisMaximum(max);
+    leftAxis.setAxisMinimum(min);
+    leftAxis.setDrawZeroLine(true);
+
+    chart.getAxisRight().setEnabled(false);
   }
 
   @Override

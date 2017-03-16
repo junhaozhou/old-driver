@@ -28,6 +28,9 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
   private List<Entry> dataSet;
 
   private Handler handler = new Handler() {
+
+    private float i = 0f;
+
     @Override
     public void handleMessage(Message msg) {
       super.handleMessage(msg);
@@ -36,9 +39,12 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
       List<Entry> entries = new ArrayList<>(doubles.size());
       for (float d : doubles) {
         Entry entry = new Entry();
-        entry.setX(d);
+        entry.setY(d);
+        entry.setX(i++);
         entries.add(entry);
       }
+      dataSet.addAll(entries);
+      sensorDetailView.updateChart();
     }
   };
 
@@ -54,6 +60,8 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
 
   @Override
   public void analyseData(final String folder, final int type) {
+    sensorDetailView.initChart();
+    sensorDetailView.initYAxis(1, -1);
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -62,16 +70,19 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
         if (file.exists()) {
           try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            String line = "";
-            List<Double> doubles = new ArrayList<>();
+            String line;
+            List<Float> floats = new ArrayList<>();
             while ((line = br.readLine()) != null) {
               String[] ss = line.split(",");
-              double x = Double.valueOf(ss[0]);
-              doubles.add(x);
-              if (doubles.size() == 100) {
-
-                doubles = new ArrayList<>();
+              float x = Float.valueOf(ss[0]);
+              floats.add(x);
+              if (floats.size() == 100) {
+                sendMessage(floats);
+                floats = new ArrayList<>();
               }
+            }
+            if (floats.size() != 0) {
+              sendMessage(floats);
             }
           } catch (IOException e) {
             e.printStackTrace();
@@ -79,6 +90,11 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
         }
       }
     }).start();
+  }
+
+  private void sendMessage(List<Float> data) {
+    Message message = handler.obtainMessage(1, data);
+    handler.sendMessage(message);
   }
 
   @Override

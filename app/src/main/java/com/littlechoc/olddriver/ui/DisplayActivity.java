@@ -70,15 +70,13 @@ public class DisplayActivity extends BaseActivity implements DisplayContract.Vie
   }
 
   private void initView() {
-    titleBar.setTitle(R.string.title);
-    titleBar.setNavigationIcon(R.drawable.ic_back);
+    setSupportActionBar(titleBar);
     titleBar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         finish();
       }
     });
-//    setSupportActionBar(titleBar);
 
     displayFragmentAdapter = new DisplayFragmentAdapter(getSupportFragmentManager(), displayPresenter.createFragments(folderName));
     viewPager.setAdapter(displayFragmentAdapter);

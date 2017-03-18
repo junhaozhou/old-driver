@@ -3,7 +3,7 @@
     <string name="app_name">老司机</string>
     <string name="title">老司机保我毕业</string>
 
-    <!--MainActivity-->
+    <!--HomeActivity-->
     <string name="analyse">分析</string>
     <string name="start_track">开始追踪</string>
     <string name="stop_track">结束追踪</string>
@@ -13,4 +13,7 @@
     <string name="menu_history">历史</string>
     <string name="menu_string">刷新</string>
     <string name="menu_clear_all">清空</string>
+    <string name="track_success">行程记录成功</string>
+    <string name="show">查看</string>
+    <string name="menu_bluetooth">蓝牙设置</string>
 </resources>

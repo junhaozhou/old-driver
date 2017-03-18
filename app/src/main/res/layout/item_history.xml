@@ -7,6 +7,7 @@
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:paddingLeft="@dimen/padding_content"
+    android:background="?attr/listChoiceBackgroundIndicator"
     android:paddingRight="@dimen/padding_content"
     >
 

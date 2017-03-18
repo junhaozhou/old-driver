@@ -24,6 +24,6 @@ public interface TrackContract {
 
   interface View extends BaseView<Presenter> {
 
-    void showAnalyseButton();
+    void showAnalyseSnack();
   }
 }

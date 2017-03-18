@@ -72,4 +72,20 @@ public class FileUtils {
     return res;
   }
 
+  public static long getSize(File file) {
+    if (file == null || !file.exists()) {
+      return 0;
+    }
+    long size = 0;
+    if (file.isDirectory()) {
+      File[] children = file.listFiles();
+      for (File child : children) {
+        size += getSize(child);
+      }
+    } else {
+      size = file.length();
+    }
+    return size;
+  }
+
 }

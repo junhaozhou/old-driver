@@ -18,7 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll"
+            app:navigationIcon="@drawable/ic_back"
             app:popupTheme="@style/Popup"
+            app:title="@string/title"
             />
 
         <android.support.design.widget.TabLayout

@@ -1,5 +1,7 @@
 package com.littlechoc.olddriver.ui.adapter;
 
+import android.content.Context;
+import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import com.littlechoc.olddriver.model.RecordModel;
 import com.littlechoc.olddriver.ui.base.BaseAdapter;
 
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 
@@ -41,8 +44,12 @@ public class HistoryAdapter extends BaseAdapter<HistoryAdapter.ViewHolder> {
 
   @Override
   public void onBindViewHolder(HistoryAdapter.ViewHolder holder, int position) {
-    holder.name.setText(records.get(position).getName());
-    String detail = "detail";
+    Context context = holder.itemView.getContext();
+    RecordModel record = records.get(position);
+    holder.name.setText(record.getName());
+    StringBuilder detail = new StringBuilder();
+    detail.append(String.format(Locale.CHINA, "size : %s",
+            Formatter.formatFileSize(context, record.getSize())));
     holder.detail.setText(detail);
   }
 

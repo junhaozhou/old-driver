@@ -79,7 +79,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     sensorDao.stop();
     lastFolder = sensorDao.getFolder();
     if (!TextUtils.isEmpty(lastFolder)) {
-      trackView.showAnalyseButton();
+      trackView.showAnalyseSnack();
     }
   }
 

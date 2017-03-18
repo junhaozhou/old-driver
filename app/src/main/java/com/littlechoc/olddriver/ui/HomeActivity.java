@@ -3,11 +3,12 @@ package com.littlechoc.olddriver.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 
 import com.littlechoc.olddriver.R;
 import com.littlechoc.olddriver.contract.TrackContract;
@@ -22,25 +23,24 @@ import butterknife.OnClick;
  * @author Junhao Zhou 2017/3/7
  */
 
-public class MainActivity extends BaseActivity implements TrackContract.View {
+public class HomeActivity extends BaseActivity implements TrackContract.View {
+
+  @BindView(R.id.root)
+  public View rootView;
 
   @BindView(R.id.title_bar)
   public Toolbar titleBar;
 
   @BindView(R.id.track_switch)
-  public Button trackSwitch;
-
-  @BindView(R.id.analyse)
-  public Button analyseButton;
+  public FloatingActionButton trackSwitch;
 
   private boolean isTracking = false;
-
 
   private TrackContract.Presenter trackPresenter;
 
   @Override
   public int getRootView() {
-    return R.layout.activity_main;
+    return R.layout.activity_home;
   }
 
   @Override
@@ -57,7 +57,7 @@ public class MainActivity extends BaseActivity implements TrackContract.View {
   private void initView() {
     titleBar.setTitle(R.string.title);
     setSupportActionBar(titleBar);
-    trackSwitch.setText(R.string.start_track);
+    trackSwitch.setImageResource(R.drawable.ic_start_track);
   }
 
   @Override
@@ -96,17 +96,26 @@ public class MainActivity extends BaseActivity implements TrackContract.View {
               public void onPermissionGranted() {
                 if (isTracking) {
                   trackPresenter.stopTrack();
-                  trackSwitch.setText(R.string.start_track);
+                  toggleTrackState(true);
                 } else {
+                  toggleTrackState(false);
                   trackPresenter.startTrack();
-                  trackSwitch.setText(R.string.stop_track);
                 }
                 isTracking = !isTracking;
               }
             });
   }
 
-  @OnClick(R.id.analyse)
+  private void toggleTrackState(final boolean start) {
+    trackSwitch.hide(new FloatingActionButton.OnVisibilityChangedListener() {
+      @Override
+      public void onHidden(FloatingActionButton fab) {
+        trackSwitch.setImageResource(start ? R.drawable.ic_start_track : R.drawable.ic_stop_track);
+        trackSwitch.show();
+      }
+    });
+  }
+
   public void onAnalyseClick() {
     trackPresenter.openDisplayActivity();
   }
@@ -122,7 +131,12 @@ public class MainActivity extends BaseActivity implements TrackContract.View {
   }
 
   @Override
-  public void showAnalyseButton() {
-    analyseButton.setVisibility(View.VISIBLE);
+  public void showAnalyseSnack() {
+    Snackbar.make(rootView, R.string.track_success, 3000).setAction(R.string.show, new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onAnalyseClick();
+      }
+    }).show();
   }
 }

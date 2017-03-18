@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     >
 
     <android.support.design.widget.AppBarLayout
@@ -22,20 +23,25 @@
             />
     </android.support.design.widget.AppBarLayout>
 
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 
-    <Button
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/track_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/padding_content"
+        android:src="@drawable/ic_start_track"
         android:text="@string/start_track"
+        app:fabSize="normal"
+        app:layout_anchor="@id/container"
+        app:layout_anchorGravity="bottom|center"
+
         />
 
-    <Button
-        android:id="@+id/analyse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/analyse"
-        android:visibility="gone"
-        />
-
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

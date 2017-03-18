@@ -7,4 +7,5 @@
 
     <color name="text_primary">#dd000000</color>
     <color name="text_secondary">#8a000000</color>
+    <color name="divider">#30000000</color>
 </resources>

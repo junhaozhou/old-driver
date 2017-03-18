@@ -41,6 +41,7 @@ public class HistoryPresenter implements HistoryContract.Presenter {
       for (File child : children) {
         RecordModel recordModel = new RecordModel();
         recordModel.setName(child.getName());
+        recordModel.setSize(FileUtils.getSize(child));
         records.add(recordModel);
       }
     }

@@ -3,6 +3,7 @@ package com.littlechoc.olddriver.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,7 @@ import com.littlechoc.olddriver.model.RecordModel;
 import com.littlechoc.olddriver.presenter.HistoryPresenter;
 import com.littlechoc.olddriver.ui.adapter.HistoryAdapter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
+import com.littlechoc.olddriver.ui.view.EmptyView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ public class HistoryActivity extends BaseActivity implements HistoryContract.Vie
 
   @BindView(R.id.history_list)
   public RecyclerView historyList;
+
+  @BindView(R.id.empty_view)
+  public EmptyView emptyView;
 
   private HistoryAdapter adapter;
 
@@ -58,16 +63,17 @@ public class HistoryActivity extends BaseActivity implements HistoryContract.Vie
   }
 
   private void initView() {
+    setSupportActionBar(titleBar);
     titleBar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         finish();
       }
     });
-    setSupportActionBar(titleBar);
 
     adapter = new HistoryAdapter(records);
     historyList.setLayoutManager(new LinearLayoutManager(this));
+    historyList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     historyList.setAdapter(adapter);
     adapter.setOnHistoryItemClickListener(new HistoryAdapter.OnHistoryItemClickListener() {
       @Override
@@ -75,6 +81,8 @@ public class HistoryActivity extends BaseActivity implements HistoryContract.Vie
         historyPresenter.openDisplayActivity(records.get(position).getName());
       }
     });
+
+    emptyView.setEmptyText("没有记录");
   }
 
   @Override

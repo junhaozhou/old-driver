@@ -4,16 +4,22 @@
     <string name="title">老司机保我毕业</string>
 
     <!--HomeActivity-->
-    <string name="analyse">分析</string>
-    <string name="start_track">开始追踪</string>
-    <string name="stop_track">结束追踪</string>
-    <!--TrackActivity_Menu-->
+    <string name="track_success">行程记录成功</string>
+    <string name="show">查看</string>
+    <!--HomeActivity Menu-->
     <string name="menu_enable_sensor_log">开启传感器日志</string>
     <string name="menu_disable_sensor_log">关闭传感器日志</string>
     <string name="menu_history">历史</string>
+    <string name="menu_bluetooth">蓝牙设置</string>
+
+    <!--RecordActivity Menu-->
     <string name="menu_string">刷新</string>
     <string name="menu_clear_all">清空</string>
-    <string name="track_success">行程记录成功</string>
-    <string name="show">查看</string>
-    <string name="menu_bluetooth">蓝牙设置</string>
+
+
+    <!--BluetoothActivity-->
+    <string name="header_paired_device">已匹配设备</string>
+    <string name="header_found_device">可用设备</string>
+    <string name="header_bluetooth_setting">蓝牙设置</string>
+    <string name="setting_auto_connect_last_paired_device">自动连接上次配对设备</string>
 </resources>

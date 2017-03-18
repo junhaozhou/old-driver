@@ -3,7 +3,6 @@ package com.littlechoc.olddriver.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +16,7 @@ import com.littlechoc.olddriver.model.RecordModel;
 import com.littlechoc.olddriver.presenter.HistoryPresenter;
 import com.littlechoc.olddriver.ui.adapter.HistoryAdapter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
+import com.littlechoc.olddriver.ui.view.DividerItemDecoration;
 import com.littlechoc.olddriver.ui.view.EmptyView;
 
 import java.util.ArrayList;

@@ -19,6 +19,8 @@ public interface TrackContract {
 
     void openHistoryActivity();
 
+    void openBluetoothActivity();
+
     void setIfLogSensor(boolean ifLog);
   }
 

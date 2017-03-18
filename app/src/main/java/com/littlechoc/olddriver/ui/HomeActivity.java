@@ -78,6 +78,9 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
       case R.id.history:
         trackPresenter.openHistoryActivity();
         break;
+      case R.id.bluetooth_setting:
+        trackPresenter.openBluetoothActivity();
+        break;
     }
     return super.onOptionsItemSelected(item);
   }

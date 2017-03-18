@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 
-import com.littlechoc.olddriver.BaseApplication;
+import com.littlechoc.olddriver.Application;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
 
 import java.lang.ref.WeakReference;
@@ -67,6 +67,11 @@ public class PermissionUtils {
           new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}
           , 0x00000002);
 
+  public static final PermissionWrapper BLUETOOTH_PERMISSION
+          = new PermissionWrapper(
+          new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.BLUETOOTH}
+          , 0x00000003);
+
   private static final PermissionWrapper[] PERMISSION_WRAPPER_ARRAY =
           new PermissionWrapper[]{STORAGE_PERMISSION, LOCATION_PERMISSION};
 
@@ -119,7 +124,7 @@ public class PermissionUtils {
 
   private static boolean checkPermission(Context context, String permission) {
     return ActivityCompat.checkSelfPermission(
-            context == null ? BaseApplication.getInstance() : context, permission)
+            context == null ? Application.getInstance() : context, permission)
             == PERMISSION_GRANTED;
   }
 

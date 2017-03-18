@@ -3,30 +3,25 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/item_height_two_line"
+    android:layout_height="@dimen/item_height_one_line"
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:paddingLeft="@dimen/content_space_horizontal"
-    android:background="?attr/listChoiceBackgroundIndicator"
     android:paddingRight="@dimen/content_space_horizontal"
+    android:background="?attr/selectableItemBackground"
     >
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/bluetooth_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:drawableEnd="@drawable/ic_enter"
+        android:drawablePadding="@dimen/content_space_horizontal"
+        android:drawableStart="@drawable/ic_bluetooth"
+        android:gravity="center_vertical"
         android:textColor="@color/text_primary"
         android:textSize="@dimen/text_primary"
-        tools:text="history"
-        />
-
-    <TextView
-        android:id="@+id/detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_secondary"
-        android:textSize="@dimen/text_secondary"
-        tools:text="detail"
+        tools:text="蓝牙"
         />
 
 </LinearLayout>

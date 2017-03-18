@@ -41,5 +41,9 @@ public class EmptyView extends RelativeLayout {
     emptyText.setText(text);
   }
 
+  public void setEmptyText(int stringRes) {
+    emptyText.setText(stringRes);
+  }
+
 
 }

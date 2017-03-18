@@ -14,6 +14,7 @@ import com.littlechoc.olddriver.dao.SensorDao;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
+import com.littlechoc.olddriver.ui.BluetoothActivity;
 import com.littlechoc.olddriver.ui.DisplayActivity;
 import com.littlechoc.olddriver.ui.HistoryActivity;
 import com.littlechoc.olddriver.utils.Logger;
@@ -93,6 +94,12 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   public void openHistoryActivity() {
     trackView.getContext()
             .startActivity(new Intent(trackView.getContext(), HistoryActivity.class));
+  }
+
+  @Override
+  public void openBluetoothActivity() {
+    trackView.getContext()
+            .startActivity(new Intent(trackView.getContext(), BluetoothActivity.class));
   }
 
   @Override

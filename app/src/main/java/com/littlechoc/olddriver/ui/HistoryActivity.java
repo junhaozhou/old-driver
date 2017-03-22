@@ -97,9 +97,6 @@ public class HistoryActivity extends BaseActivity implements HistoryContract.Vie
       case R.id.clear:
         historyPresenter.clear();
         break;
-      case R.id.refresh:
-        historyPresenter.refresh();
-        break;
     }
     return super.onOptionsItemSelected(item);
   }

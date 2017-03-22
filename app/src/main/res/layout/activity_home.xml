@@ -1,45 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:theme="@style/TitleBar"
-        >
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/title_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll"
-            app:popupTheme="@style/Popup"
-            />
-    </android.support.design.widget.AppBarLayout>
-
-    <FrameLayout
-        android:id="@+id/container"
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        >
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/track_switch"
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:theme="@style/TitleBar"
+            >
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:title="@string/title"
+                app:layout_scrollFlags="scroll"
+                app:navigationIcon="@drawable/ic_menu"
+                app:popupTheme="@style/Popup"
+                />
+        </android.support.design.widget.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/track_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/content_space_horizontal"
+            android:src="@drawable/ic_start_track"
+            app:fabSize="normal"
+            app:layout_anchor="@id/container"
+            app:layout_anchorGravity="bottom|center"
+
+            />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+    <com.littlechoc.olddriver.ui.view.CustomNavigationView
+        android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/content_space_horizontal"
-        android:src="@drawable/ic_start_track"
-        app:fabSize="normal"
-        app:layout_anchor="@id/container"
-        app:layout_anchorGravity="bottom|center"
-
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/view_navigation_header"
+        app:menu="@menu/menu_navigation"
         />
 
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.DrawerLayout>
+
+

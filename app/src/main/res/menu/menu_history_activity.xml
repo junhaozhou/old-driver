@@ -5,13 +5,6 @@
     >
 
     <item
-        android:id="@+id/refresh"
-        android:icon="@drawable/ic_refresh"
-        android:title="@string/menu_string"
-        app:showAsAction="ifRoom"
-        />
-
-    <item
         android:id="@+id/clear"
         android:icon="@drawable/ic_clear_all"
         android:title="@string/menu_clear_all"

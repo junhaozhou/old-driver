@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +17,7 @@ import com.littlechoc.olddriver.R;
 import com.littlechoc.olddriver.contract.TrackContract;
 import com.littlechoc.olddriver.presenter.TrackPresenter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
+import com.littlechoc.olddriver.ui.view.CustomNavigationView;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 
 import butterknife.BindView;
@@ -25,14 +29,22 @@ import butterknife.OnClick;
 
 public class HomeActivity extends BaseActivity implements TrackContract.View {
 
+  @BindView(R.id.drawer_layout)
+  DrawerLayout drawerLayout;
+
+  @BindView(R.id.navigation_view)
+  CustomNavigationView navigationView;
+
   @BindView(R.id.root)
-  public View rootView;
+  View rootView;
 
   @BindView(R.id.title_bar)
-  public Toolbar titleBar;
+  Toolbar titleBar;
 
   @BindView(R.id.track_switch)
-  public FloatingActionButton trackSwitch;
+  FloatingActionButton trackSwitch;
+
+  private ActionBarDrawerToggle drawerToggle;
 
   private boolean isTracking = false;
 
@@ -55,8 +67,20 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
 
 
   private void initView() {
-    titleBar.setTitle(R.string.title);
     setSupportActionBar(titleBar);
+    titleBar.setNavigationOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        drawerLayout.openDrawer(Gravity.START);
+      }
+    });
+
+    drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+            R.string.open_drawer_content_desc, R.string.close_drawer_content_desc);
+    drawerLayout.addDrawerListener(drawerToggle);
+
+    navigationView.setDrawerLayout(drawerLayout);
+
     trackSwitch.setImageResource(R.drawable.ic_start_track);
   }
 
@@ -74,12 +98,6 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
         break;
       case R.id.disable_sensor_log:
         trackPresenter.setIfLogSensor(false);
-        break;
-      case R.id.history:
-        trackPresenter.openHistoryActivity();
-        break;
-      case R.id.bluetooth_setting:
-        trackPresenter.openBluetoothActivity();
         break;
     }
     return super.onOptionsItemSelected(item);

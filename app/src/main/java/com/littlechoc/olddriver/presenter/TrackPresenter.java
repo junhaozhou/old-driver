@@ -14,10 +14,9 @@ import com.littlechoc.olddriver.dao.SensorDao;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
-import com.littlechoc.olddriver.ui.BluetoothActivity;
 import com.littlechoc.olddriver.ui.DisplayActivity;
-import com.littlechoc.olddriver.ui.HistoryActivity;
 import com.littlechoc.olddriver.utils.Logger;
+import com.littlechoc.olddriver.utils.SpUtils;
 
 /**
  * @author Junhao Zhou 2017/3/12
@@ -41,7 +40,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
 
   private String lastFolder;
 
-  private boolean logSensor = false;
+  private boolean logSensor;
 
   public TrackPresenter(TrackContract.View trackView) {
     assert trackView != null;
@@ -49,6 +48,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     sensorDao = new SensorDao();
     initSensor();
     trackView.setPresenter(this);
+    logSensor = SpUtils.getSensorLog();
   }
 
   private void initSensor() {
@@ -91,20 +91,9 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   }
 
   @Override
-  public void openHistoryActivity() {
-    trackView.getContext()
-            .startActivity(new Intent(trackView.getContext(), HistoryActivity.class));
-  }
-
-  @Override
-  public void openBluetoothActivity() {
-    trackView.getContext()
-            .startActivity(new Intent(trackView.getContext(), BluetoothActivity.class));
-  }
-
-  @Override
   public void setIfLogSensor(boolean ifLog) {
     logSensor = ifLog;
+    SpUtils.setSensorLog(ifLog);
   }
 
   @Override

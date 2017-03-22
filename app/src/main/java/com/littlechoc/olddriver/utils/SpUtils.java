@@ -46,6 +46,16 @@ public class SpUtils {
     return getPreferences().getString(Constants.KEY_LATEST_DEVICE, "");
   }
 
+  public static void setSensorLog(boolean enable) {
+    SharedPreferences.Editor editor = getPreferences().edit();
+    editor.putBoolean(Constants.KEY_SENSOR_LOG, enable);
+    commit(editor);
+  }
+
+  public static boolean getSensorLog() {
+    return getPreferences().getBoolean(Constants.KEY_SENSOR_LOG, false);
+  }
+
   public static void commit(SharedPreferences.Editor editor) {
     editor.commit();
   }

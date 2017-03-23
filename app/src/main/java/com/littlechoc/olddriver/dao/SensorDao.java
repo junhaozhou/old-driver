@@ -1,5 +1,7 @@
 package com.littlechoc.olddriver.dao;
 
+import android.hardware.Sensor;
+
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
@@ -58,7 +60,10 @@ public class SensorDao {
   public SensorDao() {
   }
 
-  private void initFiles() {
+  private void createFiles() {
+    if (isFilesCreate) {
+      return;
+    }
     folder = DateUtils.time2Date(DateUtils.PATTERN_DEFAULT, System.currentTimeMillis());
     if (!FileUtils.createFolder(folder)) {
       throw new IllegalStateException(folder + " create failure");
@@ -88,6 +93,13 @@ public class SensorDao {
       throw new IllegalStateException(e);
     }
     isFilesCreate = true;
+  }
+
+  public void saveSensorInfo(Sensor sensor, SensorModel.Type type) {
+    createFiles();
+  }
+
+  public void parseSensorInfo() {
   }
 
   public void saveAccelerometerData(AccelerometerModel accelerometerModel) {
@@ -148,9 +160,7 @@ public class SensorDao {
           });
 
   private void save(SensorModel model) {
-    if (!isFilesCreate) {
-      initFiles();
-    }
+    createFiles();
     String data = model.toString();
     model.reuse();
     processor.onNext(new DataWrapper(data, model));

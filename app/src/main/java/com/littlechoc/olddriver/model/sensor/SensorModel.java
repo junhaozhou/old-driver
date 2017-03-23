@@ -13,6 +13,10 @@ import java.util.Locale;
 
 public abstract class SensorModel implements Serializable {
 
+  public enum Type {
+    ACCELEROMETER, GYROSCOPE, MAGNETIC
+  }
+
   protected static class SensorModelPool<M extends SensorModel> {
 
     private final List<M> sensorModels = new ArrayList<>(100);
@@ -52,9 +56,7 @@ public abstract class SensorModel implements Serializable {
 
   private float z;
 
-  private float range;
-
-  private int accuracy;
+  private SensorWrapper sensor;
 
   void setData(float x, float y, float z, long timestamp) {
     this.x = x;
@@ -69,17 +71,8 @@ public abstract class SensorModel implements Serializable {
       x = event.values[0];
       y = event.values[1];
       z = event.values[2];
-      range = event.sensor.getMaximumRange();
-      accuracy = event.accuracy;
+      sensor = new SensorWrapper(event.sensor);
     }
-  }
-
-  public void setRange(float range) {
-    this.range = range;
-  }
-
-  public void setAccuracy(int accuracy) {
-    this.accuracy = accuracy;
   }
 
   public long getTimestamp() {
@@ -98,12 +91,8 @@ public abstract class SensorModel implements Serializable {
     return z;
   }
 
-  public float getRange() {
-    return range;
-  }
-
-  public int getAccuracy() {
-    return accuracy;
+  public SensorWrapper getSensor() {
+    return sensor;
   }
 
   public abstract void reuse();

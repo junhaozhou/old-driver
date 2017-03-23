@@ -9,7 +9,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
-import com.littlechoc.olddriver.R;
+import com.littlechoc.olddriver.obd.R;
 
 public class CoolantGaugeView extends GradientGaugeView {
 

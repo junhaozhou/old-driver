@@ -124,20 +124,17 @@ public class BluetoothPresenter implements BluetoothContract.Presenter {
       @Override
       public void run() {
         try {
+          bluetoothView.onStartConnect();
           device.setPin("1234".getBytes());
           BluetoothSocket socket = device.createRfcommSocketToServiceRecord(MY_UUID);
           socket.connect();
           Logger.i(TAG, "connect success");
         } catch (IOException e) {
           e.printStackTrace();
+          bluetoothView.onConnectError();
         }
       }
     }).start();
-  }
-
-  @Override
-  public void connectWithPassword(BluetoothDevice device, String password) {
-
   }
 
   @Override

@@ -43,8 +43,6 @@ public class BluetoothContract {
 
     void connect(BluetoothDevice device);
 
-    void connectWithPassword(BluetoothDevice device, String password);
-
     void setAutoConnectEnable(boolean enable);
 
     void openBluetooth();

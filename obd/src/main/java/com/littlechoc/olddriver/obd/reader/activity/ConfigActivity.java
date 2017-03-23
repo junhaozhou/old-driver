@@ -18,7 +18,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.widget.Toast;
 
-import com.littlechoc.olddriver.R;
+import com.littlechoc.olddriver.obd.R;
 import com.littlechoc.olddriver.obd.commands.ObdCommand;
 import com.littlechoc.olddriver.obd.reader.config.ObdConfig;
 

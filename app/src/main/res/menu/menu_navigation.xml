@@ -18,4 +18,16 @@
         app:showAsAction="ifRoom"
         />
 
+    <item
+        android:id="@+id/lib_config"
+        android:title="config"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/lib_main"
+        android:title="main"
+        app:showAsAction="ifRoom"
+        />
+
 </menu>

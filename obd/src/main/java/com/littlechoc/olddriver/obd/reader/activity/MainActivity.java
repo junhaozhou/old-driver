@@ -33,7 +33,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.littlechoc.olddriver.R;
+import com.littlechoc.olddriver.obd.R;
 import com.littlechoc.olddriver.obd.commands.SpeedObdCommand;
 import com.littlechoc.olddriver.obd.commands.control.CommandEquivRatioObdCommand;
 import com.littlechoc.olddriver.obd.commands.engine.EngineRPMObdCommand;

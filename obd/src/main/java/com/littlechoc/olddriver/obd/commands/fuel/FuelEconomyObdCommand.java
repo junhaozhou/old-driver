@@ -1,0 +1,81 @@
+/*
+ * TODO put header
+ */
+package com.littlechoc.olddriver.obd.commands.fuel;
+
+import com.littlechoc.olddriver.obd.commands.ObdCommand;
+import com.littlechoc.olddriver.obd.commands.SpeedObdCommand;
+import com.littlechoc.olddriver.obd.enums.AvailableCommandNames;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+/**
+ * TODO put description
+ */
+public class FuelEconomyObdCommand extends ObdCommand {
+
+  protected float kml = -1.0f;
+  private float speed = -1.0f;
+
+  /**
+   * Default ctor.
+   */
+  public FuelEconomyObdCommand() {
+    super("");
+  }
+
+  /**
+   * As it's a fake command, neither do we need to send request or read
+   * response.
+   */
+  @Override
+  public void run(InputStream in, OutputStream out) throws IOException,
+          InterruptedException {
+    // get consumption liters per hour
+    FuelConsumptionObdCommand fuelConsumptionCommand = new FuelConsumptionObdCommand();
+    fuelConsumptionCommand.run(in, out);
+    fuelConsumptionCommand.getFormattedResult();
+    float fuelConsumption = fuelConsumptionCommand.getLitersPerHour();
+
+    // get metric speed
+    SpeedObdCommand speedCommand = new SpeedObdCommand();
+    speedCommand.run(in, out);
+    speedCommand.getFormattedResult();
+    speed = speedCommand.getMetricSpeed();
+
+    // get l/100km
+    kml = (100 / speed) * fuelConsumption;
+  }
+
+  /**
+   * @return
+   */
+  @Override
+  public String getFormattedResult() {
+    if (useImperialUnits) {
+      // convert to mpg
+      return String.format("%.1f %s", getMilesPerUKGallon(), "mpg");
+    }
+    return String.format("%.1f %s", kml, "l/100km");
+  }
+
+  public float getLitersPer100Km() {
+    return kml;
+  }
+
+  public float getMilesPerUSGallon() {
+    return 235.2f / kml;
+  }
+
+  public float getMilesPerUKGallon() {
+    return 282.5f / kml;
+  }
+
+  @Override
+  public String getName() {
+    return AvailableCommandNames.FUEL_ECONOMY.getValue();
+  }
+
+}

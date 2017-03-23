@@ -85,9 +85,11 @@ public class PermissionUtils {
                                        PermissionWrapper wrapper,
                                        OnPermissionRequestCallback callback) {
     if (Build.VERSION.SDK_INT < 23) {
+      callback.onPermissionGranted();
       return;
     }
     if (activity == null) {
+      callback.onPermissionDenied();
       return;
     }
     wrapper.setPermissionRequestCallback(callback);

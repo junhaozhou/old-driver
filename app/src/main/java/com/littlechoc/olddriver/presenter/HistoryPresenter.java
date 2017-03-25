@@ -10,6 +10,7 @@ import com.littlechoc.olddriver.ui.DisplayActivity;
 import com.littlechoc.olddriver.utils.FileUtils;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,12 +46,8 @@ public class HistoryPresenter implements HistoryContract.Presenter {
         records.add(recordModel);
       }
     }
+    Collections.sort(records, new RecordModel.Comparator());
     historyView.updateList();
-  }
-
-  @Override
-  public void refresh() {
-
   }
 
   @Override

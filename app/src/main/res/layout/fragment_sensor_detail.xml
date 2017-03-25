@@ -9,13 +9,48 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         >
 
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/padding_list"
+            />
+
         <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/chart"
+            android:id="@+id/chart_x"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             />
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/padding_list"
+            />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_y"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/padding_list"
+            />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_z"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            />
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/padding_list"
+            />
+
+
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

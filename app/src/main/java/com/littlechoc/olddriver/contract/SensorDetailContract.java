@@ -1,6 +1,7 @@
 package com.littlechoc.olddriver.contract;
 
 import com.github.mikephil.charting.data.Entry;
+import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.base.BasePresenter;
 import com.littlechoc.olddriver.contract.base.BaseView;
 
@@ -16,15 +17,19 @@ public interface SensorDetailContract {
 
     void initChart();
 
-    void initYAxis(float max, float min);
+    void initXAxis(float max, float min, float range);
 
-    void updateChart();
+    void initYAxis(float max, float min, float range);
+
+    void initZAxis(float max, float min, float range);
+
+    void updateDataSet();
   }
 
   interface Presenter extends BasePresenter {
 
-    void bindDataSet(List<Entry> dataSet);
+    void bindDataSet(List<Entry> xSet, List<Entry> ySet, List<Entry> zSet);
 
-    void analyseData(String folder, int type);
+    void analyseData(String folder, Constants.SensorType type);
   }
 }

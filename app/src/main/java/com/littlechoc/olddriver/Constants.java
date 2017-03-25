@@ -13,7 +13,7 @@ public class Constants {
   public static final String KEY_LATEST_DEVICE = "key_latest_device";
   public static final String KEY_SENSOR_LOG = "key_sensor_log_switch";
 
-  public static final int TYPE_SENSOR_ACCELEROMETER = 1;
-  public static final int TYPE_SENSOR_MAGNETIC = 2;
-  public static final int TYPE_SENSOR_GYROSCOPE = 3;
+  public enum SensorType {
+    ACCELEROMETER, GYROSCOPE, MAGNETIC
+  }
 }

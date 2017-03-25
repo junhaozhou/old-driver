@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.littlechoc.olddriver.Constants;
@@ -16,6 +18,8 @@ import com.littlechoc.olddriver.contract.DisplayContract;
 import com.littlechoc.olddriver.presenter.DisplayPresenter;
 import com.littlechoc.olddriver.ui.adapter.DisplayFragmentAdapter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
+import com.littlechoc.olddriver.ui.fragment.SensorDetailFragment;
+import com.littlechoc.olddriver.ui.view.ViewPagerEx;
 
 import butterknife.BindView;
 
@@ -32,13 +36,15 @@ public class DisplayActivity extends BaseActivity implements DisplayContract.Vie
   public TabLayout tabLayout;
 
   @BindView(R.id.view_pager)
-  public ViewPager viewPager;
+  public ViewPagerEx viewPager;
 
   private DisplayFragmentAdapter displayFragmentAdapter;
 
   private String folderName;
 
   private DisplayContract.Presenter displayPresenter;
+
+  private boolean styleSplit = true;
 
   @Override
   public int getRootView() {
@@ -83,6 +89,62 @@ public class DisplayActivity extends BaseActivity implements DisplayContract.Vie
 
     tabLayout.setupWithViewPager(viewPager);
     tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+  }
+
+  @Override
+  public boolean onPrepareOptionsMenu(Menu menu) {
+    MenuItem lock = menu.findItem(R.id.menu_lock);
+    if (lock != null) {
+      lock.setIcon(viewPager.isCanScroll() ?
+              R.drawable.ic_lock_open : R.drawable.ic_lock);
+      lock.setTitle(viewPager.isCanScroll() ?
+              R.string.menu_disable_scroll : R.string.menu_enable_scroll);
+      return true;
+    }
+    return super.onPrepareOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_display_activity, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.menu_lock:
+        onLockClick();
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void onLockClick() {
+    viewPager.toggleScroll();
+    supportInvalidateOptionsMenu();
+
+    displayPresenter.changeChartDisplayStyle(viewPager.isCanScroll() ?
+            SensorDetailFragment.STYLE_UNLIMITED : SensorDetailFragment.STYLE_LIMIT);
+  }
+
+  private void onDisplayStyleClick() {
+    styleSplit = !styleSplit;
+    Fragment fragment = getCurrentFragment();
+    if (fragment != null && fragment instanceof SensorDetailFragment) {
+      if (styleSplit) {
+
+      } else {
+
+      }
+    }
+
+    supportInvalidateOptionsMenu();
+  }
+
+  private Fragment getCurrentFragment() {
+    return displayPresenter
+            .getFragmentsAtPos(viewPager.getCurrentItem());
   }
 
   @Override

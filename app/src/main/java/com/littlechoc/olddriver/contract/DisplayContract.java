@@ -20,6 +20,8 @@ public interface DisplayContract {
 
     List<BasePagerFragment> createFragments(String folder);
 
+    BasePagerFragment getFragmentsAtPos(int pos);
 
+    void changeChartDisplayStyle(int style);
   }
 }

@@ -60,4 +60,12 @@ public class RecordModel implements Parcelable {
       return new RecordModel[size];
     }
   };
+
+  public static class Comparator implements java.util.Comparator<RecordModel> {
+
+    @Override
+    public int compare(RecordModel o1, RecordModel o2) {
+      return -o1.getName().compareTo(o2.getName());
+    }
+  }
 }

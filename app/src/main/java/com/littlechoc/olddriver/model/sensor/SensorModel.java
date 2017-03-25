@@ -2,6 +2,8 @@ package com.littlechoc.olddriver.model.sensor;
 
 import android.hardware.SensorEvent;
 
+import com.littlechoc.olddriver.Constants;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +14,6 @@ import java.util.Locale;
  */
 
 public abstract class SensorModel implements Serializable {
-
-  public enum Type {
-    ACCELEROMETER, GYROSCOPE, MAGNETIC
-  }
 
   protected static class SensorModelPool<M extends SensorModel> {
 
@@ -57,6 +55,18 @@ public abstract class SensorModel implements Serializable {
   private float z;
 
   private SensorWrapper sensor;
+
+  public static SensorModel newInstance(Constants.SensorType type, float x, float y, float z, long timestamp) {
+    switch (type) {
+      case ACCELEROMETER:
+        return AccelerometerModel.newInstance(x, y, z, timestamp);
+      case MAGNETIC:
+        return MagneticModel.newInstance(x, y, z, timestamp);
+      case GYROSCOPE:
+        return GyroscopeModel.newInstance(x, y, z, timestamp);
+    }
+    throw new IllegalArgumentException("Sensor not support");
+  }
 
   void setData(float x, float y, float z, long timestamp) {
     this.x = x;

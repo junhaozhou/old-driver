@@ -17,6 +17,8 @@ public class DisplayPresenter implements DisplayContract.Presenter {
 
   private DisplayContract.View displayView;
 
+  private List<BasePagerFragment> fragments = new ArrayList<>();
+
   public DisplayPresenter(DisplayContract.View displayView) {
     this.displayView = displayView;
     displayView.setPresenter(this);
@@ -24,13 +26,29 @@ public class DisplayPresenter implements DisplayContract.Presenter {
 
   @Override
   public List<BasePagerFragment> createFragments(String folder) {
-    List<BasePagerFragment> fragments = new ArrayList<>();
+    fragments.clear();
     fragments.add(SummaryFragment.newInstance(folder));
-    fragments.add(SensorDetailFragment.newInstance(folder, Constants.TYPE_SENSOR_ACCELEROMETER));
-    fragments.add(SensorDetailFragment.newInstance(folder, Constants.TYPE_SENSOR_MAGNETIC));
-    fragments.add(SensorDetailFragment.newInstance(folder, Constants.TYPE_SENSOR_GYROSCOPE));
+    fragments.add(SensorDetailFragment.newInstance(folder, Constants.SensorType.ACCELEROMETER));
+    fragments.add(SensorDetailFragment.newInstance(folder, Constants.SensorType.MAGNETIC));
+    fragments.add(SensorDetailFragment.newInstance(folder, Constants.SensorType.GYROSCOPE));
     return fragments;
   }
+
+  @Override
+  public BasePagerFragment getFragmentsAtPos(int pos) {
+    return fragments == null ? null :
+            pos < 0 || pos >= fragments.size() ? null : fragments.get(pos);
+  }
+
+  @Override
+  public void changeChartDisplayStyle(int style) {
+    for (BasePagerFragment fragment : fragments) {
+      if (fragment instanceof SensorDetailFragment) {
+        ((SensorDetailFragment) fragment).changeChartDisplayStyle(style);
+      }
+    }
+  }
+
 
   @Override
   public void onDestroy() {

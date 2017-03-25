@@ -67,6 +67,10 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   }
 
   public void startTrack() {
+    sensorDao.prepare();
+    sensorDao.saveSensorInfo(magneticSensor, Constants.SensorType.MAGNETIC);
+    sensorDao.saveSensorInfo(accelerometerSensor, Constants.SensorType.ACCELEROMETER);
+    sensorDao.saveSensorInfo(gyroscopeSensor, Constants.SensorType.GYROSCOPE);
     sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(this, gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);

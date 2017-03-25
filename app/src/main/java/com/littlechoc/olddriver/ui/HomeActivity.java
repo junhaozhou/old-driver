@@ -19,6 +19,7 @@ import com.littlechoc.olddriver.presenter.TrackPresenter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
 import com.littlechoc.olddriver.ui.view.CustomNavigationView;
 import com.littlechoc.olddriver.utils.PermissionUtils;
+import com.littlechoc.olddriver.utils.ToastUtils;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -107,6 +108,20 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   protected void onDestroy() {
     super.onDestroy();
     trackPresenter.onDestroy();
+  }
+
+  private static final long THRESHOLD = 1000 * 2;
+
+  private long lastPressTime = 0L;
+
+  @Override
+  public void onBackPressed() {
+    if (System.currentTimeMillis() - lastPressTime > THRESHOLD) {
+      ToastUtils.show("Press Again to Quit");
+      lastPressTime = System.currentTimeMillis();
+    } else {
+      super.onBackPressed();
+    }
   }
 
   @OnClick(R.id.track_switch)

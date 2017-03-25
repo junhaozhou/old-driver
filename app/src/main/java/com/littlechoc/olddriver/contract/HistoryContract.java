@@ -23,8 +23,6 @@ public class HistoryContract {
 
     void loadData();
 
-    void refresh();
-
     void clear();
 
     void openDisplayActivity(String folder);

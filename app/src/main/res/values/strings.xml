@@ -23,4 +23,10 @@
     <string name="header_found_device">可用设备</string>
     <string name="header_bluetooth_setting">蓝牙设置</string>
     <string name="setting_auto_connect_last_paired_device">自动连接上次配对设备</string>
+
+    <!--DisplayActivity-->
+    <string name="menu_enable_scroll">启用滑动</string>
+    <string name="menu_disable_scroll">禁止滑动</string>
+    <string name="menu_display_merge">合并</string>
+    <string name="menu_display_split">拆分</string>
 </resources>

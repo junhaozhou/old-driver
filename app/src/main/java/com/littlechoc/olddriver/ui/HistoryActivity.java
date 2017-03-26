@@ -78,7 +78,7 @@ public class HistoryActivity extends BaseActivity implements HistoryContract.Vie
     adapter.setOnHistoryItemClickListener(new HistoryAdapter.OnHistoryItemClickListener() {
       @Override
       public void onClickHistoryItem(int position) {
-        historyPresenter.openDisplayActivity(records.get(position).getName());
+        historyPresenter.openDisplayActivity(records.get(position).getDate());
       }
     });
 

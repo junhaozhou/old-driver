@@ -29,4 +29,6 @@
     <string name="menu_disable_scroll">禁止滑动</string>
     <string name="menu_display_merge">合并</string>
     <string name="menu_display_split">拆分</string>
+    <!--bottom sheet mark-->
+    <string name="header_mark_as">Mark As</string>
 </resources>

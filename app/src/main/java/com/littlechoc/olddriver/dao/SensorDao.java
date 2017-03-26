@@ -2,7 +2,10 @@ package com.littlechoc.olddriver.dao;
 
 import android.hardware.Sensor;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.littlechoc.olddriver.Constants;
+import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
@@ -10,12 +13,15 @@ import com.littlechoc.olddriver.model.sensor.SensorModel;
 import com.littlechoc.olddriver.model.sensor.SensorWrapper;
 import com.littlechoc.olddriver.utils.DateUtils;
 import com.littlechoc.olddriver.utils.FileUtils;
+import com.littlechoc.olddriver.utils.JsonUtils;
 import com.littlechoc.olddriver.utils.Logger;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 
 import io.reactivex.flowables.GroupedFlowable;
@@ -24,6 +30,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * @author Junhao Zhou 2017/3/7
@@ -32,14 +39,6 @@ import io.reactivex.schedulers.Schedulers;
 public class SensorDao {
 
   private static final String TAG = "SensorDao";
-
-  public static final String SUFFIX = "dat";
-
-  public static final String FILE_ACCELEROMETER = "accelerometer";
-
-  public static final String FILE_GYROSCOPE = "gyroscope";
-
-  public static final String FILE_MAGNETIC = "magnetic";
 
   private static final int STATE_IDLE = 1;
 
@@ -63,6 +62,10 @@ public class SensorDao {
 
   private BufferedOutputStream gyroscopeBos;
 
+  private File markFile;
+
+  private BufferedOutputStream markBos;
+
   private boolean isFilesCreate = false;
 
   private int state = STATE_IDLE;
@@ -81,20 +84,25 @@ public class SensorDao {
     } else {
       Logger.d(TAG, "CREATE FOLDER [%s]", folder);
     }
-    if ((acceleFile = FileUtils.createFile(folder, FILE_ACCELEROMETER, SUFFIX)) == null) {
-      throw new IllegalStateException(FILE_ACCELEROMETER + " create failure");
+    if ((acceleFile = FileUtils.createFile(folder, Constants.FILE_ACCELEROMETER)) == null) {
+      throw new IllegalStateException(Constants.FILE_ACCELEROMETER + " create failure");
     } else {
       Logger.d(TAG, "CREATE FILE [%s]", acceleFile.getName());
     }
-    if ((magneticFile = FileUtils.createFile(folder, FILE_MAGNETIC, SUFFIX)) == null) {
-      throw new IllegalStateException(FILE_MAGNETIC + " create failure");
+    if ((magneticFile = FileUtils.createFile(folder, Constants.FILE_MAGNETIC)) == null) {
+      throw new IllegalStateException(Constants.FILE_MAGNETIC + " create failure");
     } else {
       Logger.d(TAG, "CREATE FILE [%s]", magneticFile.getName());
     }
-    if ((gyroscopeFile = FileUtils.createFile(folder, FILE_GYROSCOPE, SUFFIX)) == null) {
-      throw new IllegalStateException(FILE_GYROSCOPE + " create failure");
+    if ((gyroscopeFile = FileUtils.createFile(folder, Constants.FILE_GYROSCOPE)) == null) {
+      throw new IllegalStateException(Constants.FILE_GYROSCOPE + " create failure");
     } else {
       Logger.d(TAG, "CREATE FILE [%s]", gyroscopeFile.getName());
+    }
+    if ((markFile = FileUtils.createFile(folder, Constants.FILE_MARK)) == null) {
+      throw new IllegalArgumentException(Constants.FILE_MARK + " create failure");
+    } else {
+      Logger.d(TAG, "CREATE FILE [%s]", markFile.getName());
     }
     try {
       acceleBos = new BufferedOutputStream(new FileOutputStream(acceleFile), BUFFER_SIZE);
@@ -180,6 +188,15 @@ public class SensorDao {
     processor.onNext(new DataWrapper(data, model));
   }
 
+  public void saveMark(MarkModel markModel, boolean stop) {
+    subject.onNext(markModel);
+    if (stop) {
+      subject.onComplete();
+    }
+  }
+
+  private PublishSubject<MarkModel> subject;
+
   private PublishProcessor<DataWrapper> processor;
 
   private Consumer<GroupedFlowable<BufferedOutputStream, DataWrapper>> onNext
@@ -227,6 +244,52 @@ public class SensorDao {
         state = STATE_IDLE;
       }
     });
+
+    subject = PublishSubject.create();
+    subject.subscribeOn(Schedulers.newThread())
+            .map(new Function<MarkModel, String>() {
+              @Override
+              public String apply(MarkModel markModel) throws Exception {
+                return new Gson().toJson(markModel);
+              }
+            }).subscribe(new Consumer<String>() {
+      @Override
+      public void accept(String s) throws Exception {
+        FileOutputStream fos = new FileOutputStream(markFile);
+        fos.write((s + "\n").getBytes());
+        fos.flush();
+        fos.close();
+      }
+    }, new Consumer<Throwable>() {
+      @Override
+      public void accept(Throwable throwable) throws Exception {
+        Logger.e(TAG, "Save mark error: %s", throwable.getMessage());
+      }
+    });
+  }
+
+  public static MarkModel getMarkByFolder(File folder) {
+    if (folder == null || !folder.exists() || !folder.isDirectory()) {
+      return null;
+    }
+    File markFile = new File(folder.getAbsolutePath(), Constants.FILE_MARK);
+    if (!markFile.exists()) {
+      return null;
+    }
+    try {
+      BufferedReader br = new BufferedReader(new FileReader(markFile));
+      String line = br.readLine();
+      return JsonUtils.newInstance().fromJson(line, MarkModel.class);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      return null;
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    } catch (JsonSyntaxException e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   private static class DataWrapper {

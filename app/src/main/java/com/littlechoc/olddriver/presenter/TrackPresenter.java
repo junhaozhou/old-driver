@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.TrackContract;
 import com.littlechoc.olddriver.dao.SensorDao;
+import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
@@ -41,6 +42,10 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   private String lastFolder;
 
   private boolean logSensor;
+
+  private long startTime = 0;
+
+  private long endTime = 0;
 
   public TrackPresenter(TrackContract.View trackView) {
     assert trackView != null;
@@ -74,7 +79,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(this, gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);
-
+    startTime = System.currentTimeMillis();
   }
 
   public void stopTrack() {
@@ -84,8 +89,9 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     sensorDao.stop();
     lastFolder = sensorDao.getFolder();
     if (!TextUtils.isEmpty(lastFolder)) {
-      trackView.showAnalyseSnack();
+      trackView.showMarkerBottomSheet();
     }
+    endTime = System.currentTimeMillis();
   }
 
   public void openDisplayActivity() {
@@ -98,6 +104,16 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   public void setIfLogSensor(boolean ifLog) {
     logSensor = ifLog;
     SpUtils.setSensorLog(ifLog);
+  }
+
+  @Override
+  public void saveMarker(int type) {
+    MarkModel markModel = new MarkModel();
+    markModel.begin = startTime;
+    markModel.end = endTime;
+    markModel.type = type;
+    sensorDao.saveMark(markModel, true);
+    trackView.showAnalyseSnack();
   }
 
   @Override

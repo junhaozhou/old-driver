@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.HistoryContract;
+import com.littlechoc.olddriver.dao.SensorDao;
+import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.RecordModel;
 import com.littlechoc.olddriver.ui.DisplayActivity;
 import com.littlechoc.olddriver.utils.FileUtils;
@@ -41,8 +43,12 @@ public class HistoryPresenter implements HistoryContract.Presenter {
       File[] children = root.listFiles();
       for (File child : children) {
         RecordModel recordModel = new RecordModel();
-        recordModel.setName(child.getName());
+        recordModel.setDate(child.getName());
         recordModel.setSize(FileUtils.getSize(child));
+        MarkModel markModel = SensorDao.getMarkByFolder(child);
+        recordModel.setMarkType(markModel == null ?
+                Constants.MARK_NONE : markModel.type);
+        recordModel.setName(Constants.MARK_LIST[recordModel.getMarkType()]);
         records.add(recordModel);
       }
     }

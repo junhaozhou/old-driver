@@ -6,11 +6,9 @@ import android.os.Message;
 import com.github.mikephil.charting.data.Entry;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.SensorDetailContract;
-import com.littlechoc.olddriver.dao.SensorDao;
 import com.littlechoc.olddriver.model.sensor.SensorModel;
 import com.littlechoc.olddriver.model.sensor.SensorWrapper;
 import com.littlechoc.olddriver.utils.FileUtils;
-import com.littlechoc.olddriver.utils.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -149,7 +147,7 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
           } catch (IOException e) {
             e.printStackTrace();
           } finally {
-            IOUtils.safeCloseStream(br);
+            FileUtils.safeCloseStream(br);
           }
         }
       }
@@ -166,18 +164,17 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
     path.append(FileUtils.getAbsoluteFolder(folder)).append(File.separator);
     switch (type) {
       case ACCELEROMETER:
-        path.append(SensorDao.FILE_ACCELEROMETER);
+        path.append(Constants.FILE_ACCELEROMETER);
         break;
       case GYROSCOPE:
-        path.append(SensorDao.FILE_GYROSCOPE);
+        path.append(Constants.FILE_GYROSCOPE);
         break;
       case MAGNETIC:
-        path.append(SensorDao.FILE_MAGNETIC);
+        path.append(Constants.FILE_MAGNETIC);
         break;
       default:
         return "";
     }
-    path.append(".").append(SensorDao.SUFFIX);
     return path.toString();
   }
 

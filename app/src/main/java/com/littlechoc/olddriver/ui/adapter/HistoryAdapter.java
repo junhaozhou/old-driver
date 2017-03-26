@@ -1,6 +1,7 @@
 package com.littlechoc.olddriver.ui.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,9 +49,12 @@ public class HistoryAdapter extends BaseAdapter<HistoryAdapter.ViewHolder> {
     RecordModel record = records.get(position);
     holder.name.setText(record.getName());
     StringBuilder detail = new StringBuilder();
+    detail.append(record.getDate()).append(" ");
     detail.append(String.format(Locale.CHINA, "size : %s",
             Formatter.formatFileSize(context, record.getSize())));
     holder.detail.setText(detail);
+
+//    holder.lock.setImageResource(R.drawable.ic_lock);
   }
 
   @Override
@@ -70,6 +74,9 @@ public class HistoryAdapter extends BaseAdapter<HistoryAdapter.ViewHolder> {
     @BindView(R.id.detail)
     TextView detail;
 
+    @BindView(R.id.lock)
+    AppCompatImageView lock;
+
     public ViewHolder(View itemView) {
       super(itemView);
       itemView.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +85,12 @@ public class HistoryAdapter extends BaseAdapter<HistoryAdapter.ViewHolder> {
           if (listener != null) {
             listener.onClickHistoryItem(getAdapterPosition());
           }
+        }
+      });
+      lock.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
         }
       });
     }

@@ -2,6 +2,7 @@ package com.littlechoc.olddriver.utils;
 
 import android.text.TextUtils;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
@@ -86,6 +87,16 @@ public class FileUtils {
       size = file.length();
     }
     return size;
+  }
+
+  public static void safeCloseStream(Closeable closeable) {
+    if (closeable != null) {
+      try {
+        closeable.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
 }

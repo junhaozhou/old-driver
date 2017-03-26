@@ -4,29 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/item_height_two_line"
-    android:gravity="center_vertical"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/content_space_horizontal"
     android:background="?attr/listChoiceBackgroundIndicator"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/content_space_horizontal"
     android:paddingRight="@dimen/content_space_horizontal"
     >
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_primary"
-        tools:text="history"
-        />
+        android:layout_weight="1"
+        android:orientation="vertical"
+        >
 
-    <TextView
-        android:id="@+id/detail"
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_primary"
+            tools:text="history"
+            />
+
+        <TextView
+            android:id="@+id/detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_secondary"
+            tools:text="detail"
+            />
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_secondary"
-        android:textSize="@dimen/text_secondary"
-        tools:text="detail"
+        android:src="@drawable/ic_lock"
+        android:tint="@color/colorAccent"
         />
 
 </LinearLayout>

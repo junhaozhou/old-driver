@@ -13,6 +13,26 @@ public class RecordModel implements Parcelable {
 
   private long size;
 
+  private String date;
+
+  private int markType;
+
+  public int getMarkType() {
+    return markType;
+  }
+
+  public void setMarkType(int markType) {
+    this.markType = markType;
+  }
+
+  public String getDate() {
+    return date;
+  }
+
+  public void setDate(String date) {
+    this.date = date;
+  }
+
   public String getName() {
     return name;
   }
@@ -30,6 +50,17 @@ public class RecordModel implements Parcelable {
   }
 
 
+  public RecordModel() {
+  }
+
+  public static class Comparator implements java.util.Comparator<RecordModel> {
+
+    @Override
+    public int compare(RecordModel o1, RecordModel o2) {
+      return -o1.getDate().compareTo(o2.getDate());
+    }
+  }
+
   @Override
   public int describeContents() {
     return 0;
@@ -39,17 +70,18 @@ public class RecordModel implements Parcelable {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(this.name);
     dest.writeLong(this.size);
-  }
-
-  public RecordModel() {
+    dest.writeString(this.date);
+    dest.writeInt(this.markType);
   }
 
   protected RecordModel(Parcel in) {
     this.name = in.readString();
     this.size = in.readLong();
+    this.date = in.readString();
+    this.markType = in.readInt();
   }
 
-  public static final Parcelable.Creator<RecordModel> CREATOR = new Parcelable.Creator<RecordModel>() {
+  public static final Creator<RecordModel> CREATOR = new Creator<RecordModel>() {
     @Override
     public RecordModel createFromParcel(Parcel source) {
       return new RecordModel(source);
@@ -60,12 +92,4 @@ public class RecordModel implements Parcelable {
       return new RecordModel[size];
     }
   };
-
-  public static class Comparator implements java.util.Comparator<RecordModel> {
-
-    @Override
-    public int compare(RecordModel o1, RecordModel o2) {
-      return -o1.getName().compareTo(o2.getName());
-    }
-  }
 }

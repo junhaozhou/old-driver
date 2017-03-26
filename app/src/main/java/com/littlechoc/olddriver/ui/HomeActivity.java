@@ -17,7 +17,10 @@ import com.littlechoc.olddriver.R;
 import com.littlechoc.olddriver.contract.TrackContract;
 import com.littlechoc.olddriver.presenter.TrackPresenter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
+import com.littlechoc.olddriver.ui.base.BaseAdapter;
 import com.littlechoc.olddriver.ui.view.CustomNavigationView;
+import com.littlechoc.olddriver.ui.view.MarkBottomSheet;
+import com.littlechoc.olddriver.utils.Logger;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 import com.littlechoc.olddriver.utils.ToastUtils;
 
@@ -29,6 +32,8 @@ import butterknife.OnClick;
  */
 
 public class HomeActivity extends BaseActivity implements TrackContract.View {
+
+  public static final String TAG = "HomeActivity";
 
   @BindView(R.id.drawer_layout)
   DrawerLayout drawerLayout;
@@ -174,5 +179,18 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
         onAnalyseClick();
       }
     }).show();
+  }
+
+  @Override
+  public void showMarkerBottomSheet() {
+    MarkBottomSheet bottomSheet = MarkBottomSheet.newInstance();
+    bottomSheet.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+      @Override
+      public void onItemClick(int position) {
+        Logger.d(TAG, "on mark click: " + position);
+        trackPresenter.saveMarker(position);
+      }
+    });
+    bottomSheet.show(getSupportFragmentManager(), "MarkBottomSheet");
   }
 }

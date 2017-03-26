@@ -18,10 +18,14 @@ public interface TrackContract {
     void openDisplayActivity();
 
     void setIfLogSensor(boolean ifLog);
+
+    void saveMarker(int type);
   }
 
   interface View extends BaseView<Presenter> {
 
     void showAnalyseSnack();
+
+    void showMarkerBottomSheet();
   }
 }

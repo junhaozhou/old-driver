@@ -103,6 +103,7 @@ public class SensorDetailFragment extends BasePagerFragment implements SensorDet
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
+    initChart();
     sensorDetailPresenter.analyseData(folderName, sensorType);
   }
 
@@ -203,7 +204,8 @@ public class SensorDetailFragment extends BasePagerFragment implements SensorDet
     updateDataSet(chartX);
     updateDataSet(chartY);
     updateDataSet(chartZ);
-    applyStyle();
+//    applyStyle();
+    invalidateChart();
   }
 
   public void updateDataSet(LineChart chart) {
@@ -240,17 +242,23 @@ public class SensorDetailFragment extends BasePagerFragment implements SensorDet
   }
 
   private void limit() {
-    chartX.setVisibleXRangeMaximum(500);
-    chartY.setVisibleXRangeMaximum(500);
-    chartZ.setVisibleXRangeMaximum(500);
-    invalidateChart();
+//    chartX.setVisibleXRangeMaximum(500);
+//    chartY.setVisibleXRangeMaximum(500);
+//    chartZ.setVisibleXRangeMaximum(500);
+    if (sensorDetailPresenter != null) {
+      sensorDetailPresenter.filterData(true, sensorType);
+    }
+//    invalidateChart();
   }
 
   private void reset() {
-    chartX.fitScreen();
-    chartY.fitScreen();
-    chartZ.fitScreen();
-    invalidateChart();
+//    chartX.fitScreen();
+//    chartY.fitScreen();
+//    chartZ.fitScreen();
+//    invalidateChart();
+    if (sensorDetailPresenter != null) {
+      sensorDetailPresenter.filterData(false, sensorType);
+    }
   }
 
   private void invalidateChart() {

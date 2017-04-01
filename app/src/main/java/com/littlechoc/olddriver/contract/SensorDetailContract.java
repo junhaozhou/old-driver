@@ -15,8 +15,6 @@ public interface SensorDetailContract {
 
   interface View extends BaseView<Presenter> {
 
-    void initChart();
-
     void initXAxis(float max, float min, float range);
 
     void initYAxis(float max, float min, float range);
@@ -31,5 +29,7 @@ public interface SensorDetailContract {
     void bindDataSet(List<Entry> xSet, List<Entry> ySet, List<Entry> zSet);
 
     void analyseData(String folder, Constants.SensorType type);
+
+    void filterData(boolean filter, Constants.SensorType type);
   }
 }

@@ -54,9 +54,9 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
 
   private void handleSensorInfo(Message msg) {
     SensorWrapper sensor = (SensorWrapper) msg.obj;
-    sensorDetailView.initXAxis(sensor.maxRange, -sensor.maxRange, msg.arg1);
-    sensorDetailView.initYAxis(sensor.maxRange, -sensor.maxRange, msg.arg1);
-    sensorDetailView.initZAxis(sensor.maxRange, -sensor.maxRange, msg.arg1);
+    sensorDetailView.initXAxis(sensor.maxRange, -sensor.maxRange, msg.arg1 / 50);
+    sensorDetailView.initYAxis(sensor.maxRange, -sensor.maxRange, msg.arg1 / 50);
+    sensorDetailView.initZAxis(sensor.maxRange, -sensor.maxRange, msg.arg1 / 50);
   }
 
   private float i = 0f;
@@ -69,23 +69,26 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
     for (SensorModel d : data) {
       Entry entry = new Entry();
       entry.setY(d.getX());
-      entry.setX(i);
+      entry.setX(i / 50);
       xEntries.add(entry);
 
       entry = new Entry();
       entry.setY(d.getY());
-      entry.setX(i);
+      entry.setX(i / 50);
       yEntries.add(entry);
 
       entry = new Entry();
       entry.setY(d.getZ());
-      entry.setX(i++);
+      entry.setX(i++ / 50);
       zEntries.add(entry);
 
       d.reuse();
     }
+    xSet.clear();
     xSet.addAll(xEntries);
+    ySet.clear();
     ySet.addAll(yEntries);
+    zSet.clear();
     zSet.addAll(zEntries);
 
     sensorDetailView.updateDataSet();
@@ -102,6 +105,8 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
     this.ySet = ySet;
     this.zSet = zSet;
   }
+
+  List<SensorModel> data = new ArrayList<>();
 
   @Override
   public void analyseData(final String folder, final Constants.SensorType type) {
@@ -127,7 +132,7 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
             int lines = lnr.getLineNumber();
             sendMessage(sensor, lines);
 
-            List<SensorModel> data = new ArrayList<>();
+//            data = new ArrayList<>();
             while ((line = br.readLine()) != null) {
               String[] ss = line.split(",");
               float x = Float.valueOf(ss[0]);
@@ -136,10 +141,10 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
               long timestamp = Long.valueOf(ss[3]);
               SensorModel sensorModel = SensorModel.newInstance(type, x, y, z, timestamp);
               data.add(sensorModel);
-              if (data.size() == 100) {
-                sendMessage(data);
-                data = new ArrayList<>();
-              }
+//              if (data.size() == 100) {
+//                sendMessage(data);
+//                data = new ArrayList<>();
+//              }
             }
             if (data.size() != 0) {
               sendMessage(data);
@@ -154,9 +159,51 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
     }).start();
   }
 
+  @Override
+  public void filterData(boolean filter, Constants.SensorType type) {
+    List<SensorModel> res;
+    if (filter) {
+      res = filter(data, type);
+    } else {
+      res = data;
+    }
+    i = 0;
+    sendMessage(res);
+  }
+
+  private static final int M = 5;
+
+  private static final int p = (M - 1) / 2;
+
+  private static final int q = p + 1;
+
+  private static float y = 0;
+
+  private List<SensorModel> filter(List<SensorModel> data, Constants.SensorType type) {
+    List<SensorModel> ret = new ArrayList<>(data.size());
+    for (int i = 0; i < data.size(); i++) {
+      if (i < q) {
+        ret.add(SensorModel.newInstance(type, data.get(i).x, data.get(i).y, data.get(i).z, data.get(i).getTimestamp()));
+        continue;
+      }
+      if (i > data.size() - p - 1) {
+        ret.add(SensorModel.newInstance(type, data.get(i).x, data.get(i).y, data.get(i).z, data.get(i).getTimestamp()));
+        continue;
+      }
+      float x = filter(ret.get(i - 1).x, data.get(i + p).x, data.get(i - q).x);
+      float y = filter(ret.get(i - 1).y, data.get(i + p).y, data.get(i - q).y);
+      float z = filter(ret.get(i - 1).z, data.get(i + p).z, data.get(i - q).z);
+      ret.add(SensorModel.newInstance(type, x, y, z, data.get(i).getTimestamp()));
+    }
+    return ret;
+  }
+
+  private float filter(float y, float x1, float x2) {
+    return y + (x1 - x2) / M;
+  }
+
   private void init() {
     i = 0f;
-    sensorDetailView.initChart();
   }
 
   private String contactFilePath(String folder, Constants.SensorType type) {

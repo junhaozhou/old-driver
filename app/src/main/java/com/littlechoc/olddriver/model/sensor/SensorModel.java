@@ -48,11 +48,11 @@ public abstract class SensorModel implements Serializable {
 
   private long timestamp;
 
-  private float x;
+  public float x;
 
-  private float y;
+  public float y;
 
-  private float z;
+  public float z;
 
   private SensorWrapper sensor;
 

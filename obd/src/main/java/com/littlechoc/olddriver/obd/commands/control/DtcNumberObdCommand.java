@@ -52,8 +52,8 @@ public class DtcNumberObdCommand extends ObdCommand {
 
     res = milOn ? "MIL is ON" : "MIL is OFF";
 
-    return new StringBuilder().append(res).append(codeCount)
-            .append(" codes").toString();
+    return res + codeCount +
+            " codes";
   }
 
   /**

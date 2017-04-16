@@ -20,7 +20,7 @@ import com.littlechoc.olddriver.ui.base.BaseActivity;
 import com.littlechoc.olddriver.ui.base.BaseAdapter;
 import com.littlechoc.olddriver.ui.view.CustomNavigationView;
 import com.littlechoc.olddriver.ui.view.MarkBottomSheet;
-import com.littlechoc.olddriver.utils.Logger;
+import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 import com.littlechoc.olddriver.utils.ToastUtils;
 

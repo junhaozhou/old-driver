@@ -1,8 +1,6 @@
-package com.littlechoc.olddriver.utils;
+package com.littlechoc.commonutils;
 
 import android.util.Log;
-
-import com.littlechoc.olddriver.BuildConfig;
 
 import java.util.Locale;
 

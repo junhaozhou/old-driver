@@ -12,7 +12,7 @@ import android.content.IntentFilter;
 import com.littlechoc.olddriver.Application;
 import com.littlechoc.olddriver.contract.BluetoothContract;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
-import com.littlechoc.olddriver.utils.Logger;
+import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 import com.littlechoc.olddriver.utils.SpUtils;
 

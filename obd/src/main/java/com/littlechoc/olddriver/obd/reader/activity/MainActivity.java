@@ -36,6 +36,7 @@ import android.widget.TextView;
 import com.littlechoc.olddriver.obd.R;
 import com.littlechoc.olddriver.obd.commands.SpeedObdCommand;
 import com.littlechoc.olddriver.obd.commands.control.CommandEquivRatioObdCommand;
+import com.littlechoc.olddriver.obd.commands.control.TroubleCodesObdCommand;
 import com.littlechoc.olddriver.obd.commands.engine.EngineRPMObdCommand;
 import com.littlechoc.olddriver.obd.commands.engine.MassAirFlowObdCommand;
 import com.littlechoc.olddriver.obd.commands.fuel.FuelEconomyObdCommand;
@@ -176,6 +177,7 @@ public class MainActivity extends Activity {
         String cmdResult = job.getCommand().getFormattedResult();
 
         Log.d(TAG, FuelTrim.LONG_TERM_BANK_1.getBank() + " equals " + cmdName + "?");
+        Log.d(TAG, cmdName + ": " + cmdResult);
 
         if (AvailableCommandNames.ENGINE_RPM.getValue().equals(cmdName)) {
           TextView tvRpm = (TextView) findViewById(R.id.rpm_text);
@@ -251,9 +253,9 @@ public class MainActivity extends Activity {
       mServiceConnection.setServiceListener(mListener);
 
       // bind service
-      Log.d(TAG, "Binding service..");
-      bindService(mServiceIntent, mServiceConnection,
+      boolean ref = bindService(mServiceIntent, mServiceConnection,
               Context.BIND_AUTO_CREATE);
+      Log.d(TAG, "Binding service.. " + ref);
     }
   }
 
@@ -261,7 +263,9 @@ public class MainActivity extends Activity {
   protected void onDestroy() {
     super.onDestroy();
 
+    unbindService(mServiceConnection);
     releaseWakeLockIfHeld();
+    mHandler.removeCallbacks(mQueueCommands);
     mServiceIntent = null;
     mServiceConnection = null;
     mListener = null;
@@ -389,7 +393,7 @@ public class MainActivity extends Activity {
     // validate if preRequisites are satisfied.
     if (preRequisites) {
       if (mServiceConnection.isRunning()) {
-        startItem.setEnabled(false);
+        startItem.setEnabled(true);
         stopItem.setEnabled(true);
         settingsItem.setEnabled(false);
         commandItem.setEnabled(false);
@@ -400,7 +404,7 @@ public class MainActivity extends Activity {
         commandItem.setEnabled(false);
       }
     } else {
-      startItem.setEnabled(false);
+      startItem.setEnabled(true);
       stopItem.setEnabled(false);
       settingsItem.setEnabled(false);
       commandItem.setEnabled(false);
@@ -417,7 +421,7 @@ public class MainActivity extends Activity {
     params.setMargins(TABLE_ROW_MARGIN, TABLE_ROW_MARGIN, TABLE_ROW_MARGIN,
             TABLE_ROW_MARGIN);
     tr.setLayoutParams(params);
-    tr.setBackgroundColor(Color.BLACK);
+    tr.setBackgroundColor(Color.parseColor("#33000000"));
     TextView name = new TextView(this);
     name.setGravity(Gravity.RIGHT);
     name.setText(key + ": ");
@@ -456,11 +460,11 @@ public class MainActivity extends Activity {
         Log.d(TAG, "FUELECON:" + liters100km);
       }
 
-      if (mServiceConnection.isRunning())
+      if (mServiceConnection != null && mServiceConnection.isRunning())
         queueCommands();
 
       // run again in 2s
-      mHandler.postDelayed(mQueueCommands, 2000);
+      mHandler.postDelayed(mQueueCommands, 500);
     }
   };
 

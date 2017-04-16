@@ -1,21 +1,17 @@
 package com.littlechoc.olddriver.presenter;
 
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
 
 import com.github.mikephil.charting.data.Entry;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.SensorDetailContract;
+import com.littlechoc.olddriver.dao.SensorDao;
+import com.littlechoc.olddriver.model.sensor.DataSet;
 import com.littlechoc.olddriver.model.sensor.SensorModel;
 import com.littlechoc.olddriver.model.sensor.SensorWrapper;
-import com.littlechoc.olddriver.utils.FileUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,49 +110,56 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
     new Thread(new Runnable() {
       @Override
       public void run() {
-        String filePath = contactFilePath(folder, type);
-        File file = new File(filePath);
-        BufferedReader br = null;
-        LineNumberReader lnr = null;
-        if (file.exists()) {
-          try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(file)));
-
-            String line;
-            line = br.readLine();
-            SensorWrapper sensor = SensorWrapper.parseFromJson(line);
-
-            long length = file.length();
-            lnr.skip(length);
-            int lines = lnr.getLineNumber();
-            sendMessage(sensor, lines);
-
-//            data = new ArrayList<>();
-            while ((line = br.readLine()) != null) {
-              String[] ss = line.split(",");
-              float x = Float.valueOf(ss[0]);
-              float y = Float.valueOf(ss[1]);
-              float z = Float.valueOf(ss[2]);
-              long timestamp = Long.valueOf(ss[3]);
-              SensorModel sensorModel = SensorModel.newInstance(type, x, y, z, timestamp);
-              data.add(sensorModel);
-//              if (data.size() == 100) {
-//                sendMessage(data);
-//                data = new ArrayList<>();
-//              }
-            }
-            if (data.size() != 0) {
-              sendMessage(data);
-            }
-          } catch (IOException e) {
-            e.printStackTrace();
-          } finally {
-            FileUtils.safeCloseStream(br);
-          }
+        DataSet dataSet = SensorDao.getInfo(folder, type);
+        if (dataSet != null) {
+          sendMessage(dataSet.sensorWrapper, dataSet.lines);
+        } else {
+          return;
         }
+        data.addAll(SensorDao.loadSensorData(folder, type));
+        if (type == Constants.SensorType.ACCELEROMETER) {
+          List<SensorModel> other = SensorDao.loadSensorData(folder, Constants.SensorType.MAGNETIC);
+          matrix(other);
+        }
+        sendMessage(data);
       }
     }).start();
+  }
+
+  private void matrix(List<SensorModel> gyroscopeList) {
+    int offset = data.size() > gyroscopeList.size() ? data.size() - gyroscopeList.size() : 0;
+    for (int i = offset; i < data.size(); i++) {
+      SensorModel gyroscope = gyroscopeList.get(i - offset);
+      SensorModel acc = data.get(i);
+      float[] accArray = new float[]{acc.x, acc.y, acc.z};
+      float[] gyArray = new float[]{gyroscope.x, gyroscope.y, gyroscope.z};
+      float[] ori = new float[9];
+      float[] res = new float[3];
+      if (SensorManager.getRotationMatrix(ori, null, accArray, gyArray)) {
+        SensorManager.getOrientation(ori, res);
+        double ddx = Math.toDegrees(res[0]);
+        double dx = res[0];
+        double ddy = Math.toDegrees(res[1]);
+        double dy = res[1];
+        double ddz = Math.toDegrees(res[2]);
+        double dz = res[2];
+        acc.x = calX(acc.x, dx, dy, dz);
+        acc.y = calY(acc.y, dx, dy, dz);
+        acc.z = calZ(acc.z, dy, dz);
+      }
+    }
+  }
+
+  private float calX(float g, double dx, double dy, double dz) {
+    return (float) (-Math.cos(dz) * Math.sin(dy) * Math.cos(dx) * g - Math.sin(dz) * Math.sin(dx) * g);
+  }
+
+  private float calY(float g, double dx, double dy, double dz) {
+    return (float) (-Math.cos(dz) * Math.sin(dy) * Math.cos(dx) * g + Math.sin(dz) * Math.cos(dx) * g);
+  }
+
+  private float calZ(float g, double dy, double dz) {
+    return (float) (-Math.cos(dz) * Math.cos(dy) * g);
   }
 
   @Override
@@ -204,25 +207,6 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
 
   private void init() {
     i = 0f;
-  }
-
-  private String contactFilePath(String folder, Constants.SensorType type) {
-    StringBuilder path = new StringBuilder();
-    path.append(FileUtils.getAbsoluteFolder(folder)).append(File.separator);
-    switch (type) {
-      case ACCELEROMETER:
-        path.append(Constants.FILE_ACCELEROMETER);
-        break;
-      case GYROSCOPE:
-        path.append(Constants.FILE_GYROSCOPE);
-        break;
-      case MAGNETIC:
-        path.append(Constants.FILE_MAGNETIC);
-        break;
-      default:
-        return "";
-    }
-    return path.toString();
   }
 
   private void sendMessage(SensorWrapper sensor, int lines) {

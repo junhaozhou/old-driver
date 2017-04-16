@@ -16,7 +16,7 @@ import com.littlechoc.olddriver.obd.reader.IPostMonitor;
  */
 public class ObdGatewayServiceConnection implements ServiceConnection {
 
-  private static final String TAG = "ObdGatewayServiceConnection";
+  private static final String TAG = "GatewayServiceConn";
 
   private IPostMonitor _service = null;
   private IPostListener _listener = null;

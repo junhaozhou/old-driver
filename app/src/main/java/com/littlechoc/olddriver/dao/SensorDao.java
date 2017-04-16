@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
+import com.littlechoc.olddriver.model.sensor.DataSet;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
 import com.littlechoc.olddriver.model.sensor.SensorModel;
@@ -14,15 +15,20 @@ import com.littlechoc.olddriver.model.sensor.SensorWrapper;
 import com.littlechoc.olddriver.utils.DateUtils;
 import com.littlechoc.olddriver.utils.FileUtils;
 import com.littlechoc.olddriver.utils.JsonUtils;
-import com.littlechoc.olddriver.utils.Logger;
+import com.littlechoc.commonutils.Logger;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.flowables.GroupedFlowable;
 import io.reactivex.functions.Action;
@@ -301,6 +307,81 @@ public class SensorDao {
       this.data = data;
       this.model = model;
     }
+  }
+
+  public static DataSet getInfo(String folder, Constants.SensorType sensorType) {
+    String filePath = contactFilePath(folder, sensorType);
+    File file = new File(filePath);
+    LineNumberReader lnr;
+    if (file.exists()) {
+      try {
+        lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(file)));
+        long length = file.length();
+
+        String line = lnr.readLine();
+        SensorWrapper sensor = SensorWrapper.parseFromJson(line);
+
+        lnr.skip(length);
+        int lines = lnr.getLineNumber();
+        return new DataSet(sensor, lines);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+        return null;
+      } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  public static List<SensorModel> loadSensorData(String folder, Constants.SensorType sensorType) {
+    List<SensorModel> data = new ArrayList<>();
+    String filePath = contactFilePath(folder, sensorType);
+    File file = new File(filePath);
+    BufferedReader br = null;
+    LineNumberReader lnr = null;
+    if (file.exists()) {
+      try {
+        br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+
+        String line = br.readLine();
+        while ((line = br.readLine()) != null) {
+          String[] ss = line.split(",");
+          float x = Float.valueOf(ss[0]);
+          float y = Float.valueOf(ss[1]);
+          float z = Float.valueOf(ss[2]);
+          long timestamp = Long.valueOf(ss[3]);
+          SensorModel sensorModel = SensorModel.newInstance(sensorType, x, y, z, timestamp);
+          data.add(sensorModel);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      } finally {
+        FileUtils.safeCloseStream(br);
+      }
+    }
+    return data;
+  }
+
+  private static String contactFilePath(String folder, Constants.SensorType type) {
+    StringBuilder path = new StringBuilder();
+    path.append(FileUtils.getAbsoluteFolder(folder)).append(File.separator);
+    switch (type) {
+      case ACCELEROMETER:
+        path.append(Constants.FILE_ACCELEROMETER);
+        break;
+      case GYROSCOPE:
+        path.append(Constants.FILE_GYROSCOPE);
+        break;
+      case MAGNETIC:
+        path.append(Constants.FILE_MAGNETIC);
+        break;
+      default:
+        return "";
+    }
+    return path.toString();
   }
 
 }

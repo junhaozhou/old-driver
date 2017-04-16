@@ -4,6 +4,8 @@
 
 package com.littlechoc.olddriver.obd.commands;
 
+import com.littlechoc.commonutils.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,6 +15,8 @@ import java.util.ArrayList;
  * TODO put description
  */
 public abstract class ObdCommand {
+
+  private static final String TAG = "ObdCommand";
 
   protected ArrayList<Integer> buffer = null;
   protected String cmd = null;
@@ -26,7 +30,7 @@ public abstract class ObdCommand {
    */
   public ObdCommand(String command) {
     this.cmd = command;
-    this.buffer = new ArrayList<Integer>();
+    this.buffer = new ArrayList<>();
   }
 
   /**
@@ -61,7 +65,7 @@ public abstract class ObdCommand {
    * This method may be overriden in subclasses, such as ObMultiCommand or
    * TroubleCodesObdCommand.
    *
-   * @param cmd The command to send.
+   * @param out The command to send.
    */
   protected void sendCommand(OutputStream out) throws IOException,
           InterruptedException {
@@ -125,6 +129,7 @@ public abstract class ObdCommand {
 		 */
     //
     rawData = res.toString().trim();
+    Logger.d(TAG, "rawData = %s", rawData);
 
     // clear buffer
     buffer.clear();
@@ -132,11 +137,16 @@ public abstract class ObdCommand {
     // read string each two chars
     int begin = 0;
     int end = 2;
-    while (end <= rawData.length()) {
-      String temp = "0x" + rawData.substring(begin, end);
-      buffer.add(Integer.decode(temp));
-      begin = end;
-      end += 2;
+    try {
+      while (end <= rawData.length()) {
+        String temp = "0x" + rawData.substring(begin, end);
+        buffer.add(Integer.decode(temp));
+        begin = end;
+        end += 2;
+      }
+    } catch (NumberFormatException e) {
+      Logger.e(TAG, "rawData is String");
+      buffer.clear();
     }
   }
 

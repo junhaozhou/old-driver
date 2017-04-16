@@ -25,7 +25,7 @@ import com.littlechoc.olddriver.ui.base.BaseAdapter;
 import com.littlechoc.olddriver.ui.view.DividerItemDecoration;
 import com.littlechoc.olddriver.ui.view.EmptyView;
 import com.littlechoc.olddriver.ui.view.RecyclerViewEx;
-import com.littlechoc.olddriver.utils.Logger;
+import com.littlechoc.commonutils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

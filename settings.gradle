@@ -1,1 +1,1 @@
-include ':app', ':obd'
+include ':app', ':obd', ':common-utils'

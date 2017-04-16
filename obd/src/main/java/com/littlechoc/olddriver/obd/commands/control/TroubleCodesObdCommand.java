@@ -106,7 +106,7 @@ public class TroubleCodesObdCommand extends ObdCommand {
   @Override
   public String getFormattedResult() {
     // TODO Auto-generated method stub
-    return null;
+    return formatResult();
   }
 
   @Override

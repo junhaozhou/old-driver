@@ -16,7 +16,7 @@ import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
 import com.littlechoc.olddriver.ui.DisplayActivity;
-import com.littlechoc.olddriver.utils.Logger;
+import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.utils.SpUtils;
 
 /**

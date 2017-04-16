@@ -36,7 +36,7 @@ public class FuelTrimObdCommand extends ObdCommand {
 
   @Override
   public String getFormattedResult() {
-    if (!"NODATA".equals(getResult())) {
+    if (!"NODATA".equals(getResult()) && buffer.size() > 2) {
       // ignore first two bytes [hh hh] of the response
       fuelTrimValue = prepareTempValue(buffer.get(2));
     }

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>®
 
     <application
         android:name=".Application"
@@ -50,6 +51,8 @@
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustPan"
             />
+
+        <service android:name=".obd.reader.io.ObdGatewayService"/>
     </application>
 
 </manifest>

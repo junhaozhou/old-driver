@@ -83,6 +83,7 @@ public class ObdGatewayService extends Service {
    */
   @Override
   public IBinder onBind(Intent intent) {
+    startService();
     return _binder;
   }
 
@@ -258,7 +259,7 @@ public class ObdGatewayService extends Service {
         job = _queue.take();
 
         // log job
-        Log.d(TAG, "Taking job[" + job.getId() + "] from queue..");
+        Log.d(TAG, "Taking job[" + job.getId() + ": " + job.getCommand().getName() + "] from queue..");
 
         if (job.getState().equals(ObdCommandJobState.NEW)) {
           Log.d(TAG, "Job state is NEW. Run it..");
@@ -338,8 +339,10 @@ public class ObdGatewayService extends Service {
    */
   private void showNotification() {
     // Set the icon, scrolling text and timestamp
-    Notification notification = new Notification(R.drawable.icon,
-            getText(R.string.service_started), System.currentTimeMillis());
+    Notification notification = new Notification.Builder(getApplicationContext()).setContentText(getText(R.string.service_started))
+            .setSmallIcon(R.drawable.icon).setWhen(System.currentTimeMillis()).build();
+//    new Notification(R.drawable.icon,
+//            getText(R.string.service_started), System.currentTimeMillis());
 
     // Launch our activity if the user selects this notification
     PendingIntent contentIntent = PendingIntent.getActivity(this, 0,

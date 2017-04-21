@@ -8,15 +8,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.text.TextUtils;
 
+import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.TrackContract;
+import com.littlechoc.olddriver.dao.MarkDao;
 import com.littlechoc.olddriver.dao.SensorDao;
 import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
 import com.littlechoc.olddriver.ui.DisplayActivity;
-import com.littlechoc.commonutils.Logger;
+import com.littlechoc.olddriver.utils.DateUtils;
 import com.littlechoc.olddriver.utils.SpUtils;
 
 /**
@@ -31,6 +33,8 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
 
   private SensorDao sensorDao;
 
+  private MarkDao markDao;
+
   private Sensor accelerometerSensor;
 
   private Sensor magneticSensor;
@@ -39,7 +43,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
 
   private TrackContract.View trackView;
 
-  private String lastFolder;
+  private String folder;
 
   private boolean logSensor;
 
@@ -51,6 +55,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     assert trackView != null;
     this.trackView = trackView;
     sensorDao = new SensorDao();
+    markDao = new MarkDao();
     initSensor();
     trackView.setPresenter(this);
     logSensor = SpUtils.getSensorLog();
@@ -72,31 +77,51 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   }
 
   public void startTrack() {
-    sensorDao.prepare();
+    startTime = System.currentTimeMillis();
+    folder = DateUtils.time2Date(DateUtils.PATTERN_DEFAULT, startTime);
+
+    markDao.prepare(folder);
+    startSensorTrack();
+    startObdTrack();
+  }
+
+  private void startSensorTrack() {
+    sensorDao.prepare(folder);
     sensorDao.saveSensorInfo(magneticSensor, Constants.SensorType.MAGNETIC);
     sensorDao.saveSensorInfo(accelerometerSensor, Constants.SensorType.ACCELEROMETER);
     sensorDao.saveSensorInfo(gyroscopeSensor, Constants.SensorType.GYROSCOPE);
     sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
     sensorManager.registerListener(this, gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);
-    startTime = System.currentTimeMillis();
+  }
+
+  private void startObdTrack() {
+
   }
 
   public void stopTrack() {
-    sensorManager.unregisterListener(this, magneticSensor);
-    sensorManager.unregisterListener(this, accelerometerSensor);
-    sensorManager.unregisterListener(this, gyroscopeSensor);
-    sensorDao.stop();
-    lastFolder = sensorDao.getFolder();
-    if (!TextUtils.isEmpty(lastFolder)) {
+    stopSensorTrack();
+    stopObdTrack();
+    if (!TextUtils.isEmpty(folder)) {
       trackView.showMarkerBottomSheet();
     }
     endTime = System.currentTimeMillis();
   }
 
+  private void stopSensorTrack() {
+    sensorManager.unregisterListener(this, magneticSensor);
+    sensorManager.unregisterListener(this, accelerometerSensor);
+    sensorManager.unregisterListener(this, gyroscopeSensor);
+    sensorDao.stop();
+  }
+
+  private void stopObdTrack() {
+
+  }
+
   public void openDisplayActivity() {
     Intent intent = new Intent(trackView.getContext(), DisplayActivity.class);
-    intent.putExtra(Constants.KEY_FOLDER_NAME, lastFolder);
+    intent.putExtra(Constants.KEY_FOLDER_NAME, folder);
     trackView.getContext().startActivity(intent);
   }
 
@@ -106,14 +131,29 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     SpUtils.setSensorLog(ifLog);
   }
 
+  private long markTime = 0L;
+
   @Override
-  public void saveMarker(int type) {
+  public void beginMark() {
+    markTime = System.currentTimeMillis();
+  }
+
+  @Override
+  public void saveMarker(int type, boolean last) {
     MarkModel markModel = new MarkModel();
-    markModel.begin = startTime;
-    markModel.end = endTime;
+    if (last) {
+      markModel.begin = startTime;
+      markModel.end = endTime;
+    } else {
+      markModel.begin = markTime;
+      markModel.end = System.currentTimeMillis();
+    }
     markModel.type = type;
-    sensorDao.saveMark(markModel, true);
-    trackView.showAnalyseSnack();
+    markDao.saveMark(markModel);
+    if (last) {
+      markDao.stop();
+      trackView.showAnalyseSnack();
+    }
   }
 
   @Override

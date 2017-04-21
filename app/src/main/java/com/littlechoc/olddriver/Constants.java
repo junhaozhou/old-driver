@@ -13,14 +13,6 @@ public class Constants {
   public static final String KEY_LATEST_DEVICE = "key_latest_device";
   public static final String KEY_SENSOR_LOG = "key_sensor_log_switch";
 
-  public static final String[] MARK_LIST = new String[]{
-          "左转弯", "左急转弯", "右转弯", "右急转弯", "加速", "急加速", "刹车", "急刹车", "混合", "无"
-  };
-
-  public static final int MARK_UNKNOWN = -1;
-
-  public static final int MARK_NONE = MARK_LIST.length - 1;
-
   public static final String FILE_ACCELEROMETER = "accelerometer.dat";
 
   public static final String FILE_GYROSCOPE = "gyroscope.dat";

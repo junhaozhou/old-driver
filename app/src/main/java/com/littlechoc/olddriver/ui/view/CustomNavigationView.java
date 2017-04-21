@@ -15,6 +15,7 @@ import com.littlechoc.olddriver.obd.reader.activity.ConfigActivity;
 import com.littlechoc.olddriver.obd.reader.activity.MainActivity;
 import com.littlechoc.olddriver.ui.BluetoothActivity;
 import com.littlechoc.olddriver.ui.HistoryActivity;
+import com.littlechoc.olddriver.ui.SettingActivity;
 
 /**
  * @author Junhao Zhou 2017/3/19
@@ -27,6 +28,8 @@ public class CustomNavigationView extends NavigationView implements NavigationVi
   private static final int ACTION_HISTORY = 1;
 
   private static final int ACTION_BLUETOOTH = 2;
+
+  private static final int ACTION_SETTING = 3;
 
   private static final int ACTION_LIB_CONFIG = 9;
 
@@ -73,6 +76,10 @@ public class CustomNavigationView extends NavigationView implements NavigationVi
         closeDrawer();
         action = ACTION_BLUETOOTH;
         return true;
+      case R.id.menu_setting:
+        closeDrawer();
+        action = ACTION_SETTING;
+        return true;
       case R.id.lib_config:
         closeDrawer();
         action = ACTION_LIB_CONFIG;
@@ -110,6 +117,8 @@ public class CustomNavigationView extends NavigationView implements NavigationVi
       getContext().startActivity(new Intent(getContext(), BluetoothActivity.class));
     } else if (ACTION_HISTORY == action) {
       getContext().startActivity(new Intent(getContext(), HistoryActivity.class));
+    } else if (ACTION_SETTING == action) {
+      getContext().startActivity(new Intent(getContext(), SettingActivity.class));
     } else if (ACTION_LIB_CONFIG == action) {
       getContext().startActivity(new Intent(getContext(), ConfigActivity.class));
     } else if (ACTION_LIB_MAIN == action) {

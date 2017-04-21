@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="OBD Commands">
+
+        <PreferenceScreen
+            android:key="key_exit_obd_commands"
+            android:title="编辑 OBD Commands"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/title_pattern">
+
+        <PreferenceScreen
+            android:key="key_edit_pattern"
+            android:title="模式编辑"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

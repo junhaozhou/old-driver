@@ -2,8 +2,8 @@ package com.littlechoc.olddriver.dao;
 
 import android.hardware.Sensor;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
@@ -12,10 +12,8 @@ import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
 import com.littlechoc.olddriver.model.sensor.SensorModel;
 import com.littlechoc.olddriver.model.sensor.SensorWrapper;
-import com.littlechoc.olddriver.utils.DateUtils;
 import com.littlechoc.olddriver.utils.FileUtils;
 import com.littlechoc.olddriver.utils.JsonUtils;
-import com.littlechoc.commonutils.Logger;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -36,7 +34,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
 
 /**
  * @author Junhao Zhou 2017/3/7
@@ -54,7 +51,7 @@ public class SensorDao {
 
   private static final int BUFFER_SIZE = 8192;
 
-  private String folder;
+  private String folderName;
 
   private File acceleFile;
 
@@ -68,10 +65,6 @@ public class SensorDao {
 
   private BufferedOutputStream gyroscopeBos;
 
-  private File markFile;
-
-  private BufferedOutputStream markBos;
-
   private boolean isFilesCreate = false;
 
   private int state = STATE_IDLE;
@@ -84,31 +77,25 @@ public class SensorDao {
     if (isFilesCreate) {
       return;
     }
-    folder = DateUtils.time2Date(DateUtils.PATTERN_DEFAULT, System.currentTimeMillis());
-    if (!FileUtils.createFolder(folder)) {
-      throw new IllegalStateException(folder + " create failure");
+    if (!FileUtils.createFolder(folderName)) {
+      throw new IllegalStateException(folderName + " create failure");
     } else {
-      Logger.d(TAG, "CREATE FOLDER [%s]", folder);
+      Logger.d(TAG, "CREATE FOLDER [%s]", folderName);
     }
-    if ((acceleFile = FileUtils.createFile(folder, Constants.FILE_ACCELEROMETER)) == null) {
+    if ((acceleFile = FileUtils.createFile(folderName, Constants.FILE_ACCELEROMETER)) == null) {
       throw new IllegalStateException(Constants.FILE_ACCELEROMETER + " create failure");
     } else {
       Logger.d(TAG, "CREATE FILE [%s]", acceleFile.getName());
     }
-    if ((magneticFile = FileUtils.createFile(folder, Constants.FILE_MAGNETIC)) == null) {
+    if ((magneticFile = FileUtils.createFile(folderName, Constants.FILE_MAGNETIC)) == null) {
       throw new IllegalStateException(Constants.FILE_MAGNETIC + " create failure");
     } else {
       Logger.d(TAG, "CREATE FILE [%s]", magneticFile.getName());
     }
-    if ((gyroscopeFile = FileUtils.createFile(folder, Constants.FILE_GYROSCOPE)) == null) {
+    if ((gyroscopeFile = FileUtils.createFile(folderName, Constants.FILE_GYROSCOPE)) == null) {
       throw new IllegalStateException(Constants.FILE_GYROSCOPE + " create failure");
     } else {
       Logger.d(TAG, "CREATE FILE [%s]", gyroscopeFile.getName());
-    }
-    if ((markFile = FileUtils.createFile(folder, Constants.FILE_MARK)) == null) {
-      throw new IllegalArgumentException(Constants.FILE_MARK + " create failure");
-    } else {
-      Logger.d(TAG, "CREATE FILE [%s]", markFile.getName());
     }
     try {
       acceleBos = new BufferedOutputStream(new FileOutputStream(acceleFile), BUFFER_SIZE);
@@ -120,8 +107,9 @@ public class SensorDao {
     isFilesCreate = true;
   }
 
-  public void prepare() {
-    Logger.d(TAG, "#prepare");
+  public void prepare(String folderName) {
+    Logger.d(TAG, "#prepare folder = %s", folderName);
+    this.folderName = folderName;
     if (state != STATE_IDLE) {
       Logger.e(TAG, "prepare failure: state(%d) illegal", state);
       return;
@@ -169,7 +157,7 @@ public class SensorDao {
   }
 
   public String getFolder() {
-    return folder;
+    return folderName;
   }
 
   public void saveAccelerometerData(AccelerometerModel accelerometerModel) {
@@ -193,15 +181,6 @@ public class SensorDao {
     model.reuse();
     processor.onNext(new DataWrapper(data, model));
   }
-
-  public void saveMark(MarkModel markModel, boolean stop) {
-    subject.onNext(markModel);
-    if (stop) {
-      subject.onComplete();
-    }
-  }
-
-  private PublishSubject<MarkModel> subject;
 
   private PublishProcessor<DataWrapper> processor;
 
@@ -248,28 +227,6 @@ public class SensorDao {
         magneticBos.close();
         gyroscopeBos.close();
         state = STATE_IDLE;
-      }
-    });
-
-    subject = PublishSubject.create();
-    subject.subscribeOn(Schedulers.newThread())
-            .map(new Function<MarkModel, String>() {
-              @Override
-              public String apply(MarkModel markModel) throws Exception {
-                return new Gson().toJson(markModel);
-              }
-            }).subscribe(new Consumer<String>() {
-      @Override
-      public void accept(String s) throws Exception {
-        FileOutputStream fos = new FileOutputStream(markFile);
-        fos.write((s + "\n").getBytes());
-        fos.flush();
-        fos.close();
-      }
-    }, new Consumer<Throwable>() {
-      @Override
-      public void accept(Throwable throwable) throws Exception {
-        Logger.e(TAG, "Save mark error: %s", throwable.getMessage());
       }
     });
   }

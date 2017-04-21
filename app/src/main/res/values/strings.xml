@@ -11,6 +11,7 @@
     <!--HomeActivity DrawerLayout-->
     <string name="menu_bluetooth">蓝牙</string>
     <string name="menu_history">历史</string>
+    <string name="menu_settings">设置</string>
     <!--HomeActivity Menu-->
     <string name="menu_enable_sensor_log">开启传感器日志</string>
     <string name="menu_disable_sensor_log">关闭传感器日志</string>
@@ -31,4 +32,5 @@
     <string name="menu_display_split">拆分</string>
     <!--bottom sheet mark-->
     <string name="header_mark_as">Mark As</string>
+    <string name="title_pattern">模式</string>
 </resources>

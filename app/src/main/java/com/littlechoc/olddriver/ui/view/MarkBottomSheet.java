@@ -3,13 +3,17 @@ package com.littlechoc.olddriver.ui.view;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.view.ViewGroup;
 
-import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.R;
+import com.littlechoc.olddriver.dao.PatternDao;
+import com.littlechoc.olddriver.model.Pattern;
 import com.littlechoc.olddriver.ui.base.BaseAdapter;
+
+import java.util.List;
 
 /**
  * @author Junhao Zhou 2017/3/26
@@ -19,29 +23,42 @@ public class MarkBottomSheet extends BottomSheetDialogFragment {
 
   public static final String TAG = "MarkBottomSheet";
 
+  private static final String KEY_PATTERN_CATEGORY = "key_pattern_category";
+
   private ViewGroup rootView;
 
   private BaseAdapter.OnItemClickListener onItemClickListener;
 
-  private int selectedType = Constants.MARK_UNKNOWN;
+  private int selectedType = Pattern.UNKNOWN.getId();
+
+  private List<Pattern> patternList;
 
   private BaseAdapter.OnItemClickListener onItemClickListenerWrapper = new BaseAdapter.OnItemClickListener() {
     @Override
     public void onItemClick(int position) {
-      selectedType = position;
+      int id = patternList.get(position).getId();
+      selectedType = id;
       if (onItemClickListener != null) {
-        onItemClickListener.onItemClick(position);
+        onItemClickListener.onItemClick(id);
       }
       dismiss();
     }
   };
 
-  public static MarkBottomSheet newInstance() {
+  public static MarkBottomSheet newInstance(int patternCategory) {
 
     Bundle args = new Bundle();
+    args.putInt(KEY_PATTERN_CATEGORY, patternCategory);
     MarkBottomSheet fragment = new MarkBottomSheet();
     fragment.setArguments(args);
     return fragment;
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    int patternCategory = getArguments().getInt(KEY_PATTERN_CATEGORY);
+    patternList = PatternDao.getInstance().getPatternListByCategory(patternCategory);
   }
 
   @Override
@@ -56,14 +73,14 @@ public class MarkBottomSheet extends BottomSheetDialogFragment {
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    int size = Constants.MARK_LIST.length;
+    int size = patternList.size();
     for (int i = 0; i < size / 2; i++) {
       MarkerLineView view = new MarkerLineView(getContext());
       view.setOnItemClickListener(onItemClickListenerWrapper);
-      if (2 * i + 1 > Constants.MARK_LIST.length - 1) {
-        view.setMarker(Constants.MARK_LIST[2 * i], "", i);
+      if (2 * i + 1 > patternList.size() - 1) {
+        view.setMarker(patternList.get(2 * i).getName(), "", i);
       } else {
-        view.setMarker(Constants.MARK_LIST[2 * i], Constants.MARK_LIST[2 * i + 1], i);
+        view.setMarker(patternList.get(2 * i).getName(), patternList.get(2 * i + 1).getName(), i);
       }
       rootView.addView(view);
     }
@@ -76,8 +93,9 @@ public class MarkBottomSheet extends BottomSheetDialogFragment {
   @Override
   public void onDismiss(DialogInterface dialog) {
     super.onDismiss(dialog);
-    if (selectedType == Constants.MARK_UNKNOWN && onItemClickListener != null) {
-      onItemClickListener.onItemClick(Constants.MARK_NONE);
+    if (selectedType == Pattern.UNKNOWN.getId() && onItemClickListener != null) {
+      int id = patternList.size() > 0 ? patternList.get(patternList.size() - 1).getId() : Pattern.UNKNOWN.getId();
+      onItemClickListener.onItemClick(id);
     }
   }
 }

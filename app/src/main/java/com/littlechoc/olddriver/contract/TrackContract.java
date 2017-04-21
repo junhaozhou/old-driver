@@ -19,7 +19,9 @@ public interface TrackContract {
 
     void setIfLogSensor(boolean ifLog);
 
-    void saveMarker(int type);
+    void beginMark();
+
+    void saveMarker(int type, boolean last);
   }
 
   interface View extends BaseView<Presenter> {

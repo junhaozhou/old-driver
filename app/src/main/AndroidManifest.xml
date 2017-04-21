@@ -52,6 +52,11 @@
             android:windowSoftInputMode="adjustPan"
             />
 
+        <activity
+            android:name=".ui.SettingActivity"
+            android:theme="@style/AppTheme"
+            />
+
         <service android:name=".obd.reader.io.ObdGatewayService"/>
     </application>
 

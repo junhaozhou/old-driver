@@ -15,14 +15,14 @@ public class RecordModel implements Parcelable {
 
   private String date;
 
-  private int markType;
+  private int patternId;
 
-  public int getMarkType() {
-    return markType;
+  public int getPatternId() {
+    return patternId;
   }
 
-  public void setMarkType(int markType) {
-    this.markType = markType;
+  public void setPatternId(int patternId) {
+    this.patternId = patternId;
   }
 
   public String getDate() {
@@ -71,14 +71,14 @@ public class RecordModel implements Parcelable {
     dest.writeString(this.name);
     dest.writeLong(this.size);
     dest.writeString(this.date);
-    dest.writeInt(this.markType);
+    dest.writeInt(this.patternId);
   }
 
   protected RecordModel(Parcel in) {
     this.name = in.readString();
     this.size = in.readLong();
     this.date = in.readString();
-    this.markType = in.readInt();
+    this.patternId = in.readInt();
   }
 
   public static final Creator<RecordModel> CREATOR = new Creator<RecordModel>() {

@@ -13,14 +13,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.R;
 import com.littlechoc.olddriver.contract.TrackContract;
+import com.littlechoc.olddriver.model.PatternCategory;
 import com.littlechoc.olddriver.presenter.TrackPresenter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
 import com.littlechoc.olddriver.ui.base.BaseAdapter;
 import com.littlechoc.olddriver.ui.view.CustomNavigationView;
 import com.littlechoc.olddriver.ui.view.MarkBottomSheet;
-import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 import com.littlechoc.olddriver.utils.ToastUtils;
 
@@ -183,12 +184,12 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
 
   @Override
   public void showMarkerBottomSheet() {
-    MarkBottomSheet bottomSheet = MarkBottomSheet.newInstance();
+    MarkBottomSheet bottomSheet = MarkBottomSheet.newInstance(PatternCategory.COMMON);
     bottomSheet.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
       @Override
       public void onItemClick(int position) {
         Logger.d(TAG, "on mark click: " + position);
-        trackPresenter.saveMarker(position);
+        trackPresenter.saveMarker(position, true);
       }
     });
     bottomSheet.show(getSupportFragmentManager(), "MarkBottomSheet");

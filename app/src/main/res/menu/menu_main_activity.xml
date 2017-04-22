@@ -5,6 +5,13 @@
     >
 
     <item
+        android:id="@+id/mark"
+        android:icon="@drawable/ic_mark"
+        android:title="@string/menu_mark"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
         android:id="@+id/enable_sensor_log"
         android:title="@string/menu_enable_sensor_log"
         app:showAsAction="collapseActionView"

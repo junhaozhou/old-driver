@@ -69,13 +69,16 @@ public abstract class ObdCommand {
    */
   protected void sendCommand(OutputStream out) throws IOException,
           InterruptedException {
+
+    long time = System.currentTimeMillis();
     // add the carriage return char
-    cmd += "\r";
+    String command = cmd + "\r";
 
     // write to OutputStream, or in this case a BluetoothSocket
-    out.write(cmd.getBytes());
+    out.write(command.getBytes());
     out.flush();
 
+    Logger.e(TAG, "send data cost %d", System.currentTimeMillis() - time);
 		/*
      * HACK GOLDEN HAMMER ahead!!
 		 * 
@@ -84,7 +87,7 @@ public abstract class ObdCommand {
 		 * Due to the time that some systems may take to respond, let's give it
 		 * 500ms.
 		 */
-    Thread.sleep(200);
+//    Thread.sleep(200);
   }
 
   /**
@@ -111,17 +114,21 @@ public abstract class ObdCommand {
    * This method may be overriden in subclasses, such as ObdMultiCommand.
    */
   protected void readResult(InputStream in) throws IOException {
+    long time = System.currentTimeMillis();
     byte b = 0;
     StringBuilder res = new StringBuilder();
 
     // read until '>' arrives
-    while ((char) (b = (byte) in.read()) != '>')
-      if ((char) b != ' ')
+    while ((char) (b = (byte) in.read()) != '>') {
+      if ((char) b != ' ') {
         res.append((char) b);
+      }
+    }
+    Logger.e(TAG, "read data cost %d", System.currentTimeMillis() - time);
 
 		/*
      * Imagine the following response 41 0c 00 0d.
-		 * 
+		 *
 		 * ELM sends strings!! So, ELM puts spaces between each "byte". And pay
 		 * attention to the fact that I've put the word byte in quotes, because
 		 * 41 is actually TWO bytes (two chars) in the socket. So, we must do
@@ -207,5 +214,9 @@ public abstract class ObdCommand {
    * @return the OBD command name.
    */
   public abstract String getName();
+
+  public String getString() {
+    return getCommand() + "|" + getResult() + "|" + getName();
+  }
 
 }

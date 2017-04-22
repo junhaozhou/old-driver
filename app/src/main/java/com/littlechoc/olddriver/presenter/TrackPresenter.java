@@ -1,25 +1,35 @@
 package com.littlechoc.olddriver.presenter;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.PowerManager;
 import android.text.TextUtils;
 
 import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.Constants;
 import com.littlechoc.olddriver.contract.TrackContract;
 import com.littlechoc.olddriver.dao.MarkDao;
+import com.littlechoc.olddriver.dao.ObdDao;
 import com.littlechoc.olddriver.dao.SensorDao;
 import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
+import com.littlechoc.olddriver.model.sensor.ObdModel;
 import com.littlechoc.olddriver.ui.DisplayActivity;
 import com.littlechoc.olddriver.utils.DateUtils;
 import com.littlechoc.olddriver.utils.SpUtils;
+import com.littlechoc.olddriver.utils.ToastUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Junhao Zhou 2017/3/12
@@ -34,6 +44,8 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   private SensorDao sensorDao;
 
   private MarkDao markDao;
+
+  private ObdDao obdDao;
 
   private Sensor accelerometerSensor;
 
@@ -51,14 +63,30 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
 
   private long endTime = 0;
 
+  private BluetoothAdapter bluetoothAdapter;
+
+  private BluetoothDevice bluetoothDevice;
+
+  private PowerManager.WakeLock wakeLock;
+
+  private List<ObdModel> obdModelList;
+
+  private boolean isTracking;
+
   public TrackPresenter(TrackContract.View trackView) {
     assert trackView != null;
     this.trackView = trackView;
     sensorDao = new SensorDao();
     markDao = new MarkDao();
+    obdDao = new ObdDao();
+
+    bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     initSensor();
     trackView.setPresenter(this);
     logSensor = SpUtils.getSensorLog();
+
+    PowerManager powerManager = (PowerManager) trackView.getContext().getSystemService(Context.POWER_SERVICE);
+    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wake tag");
   }
 
   private void initSensor() {
@@ -79,10 +107,15 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   public void startTrack() {
     startTime = System.currentTimeMillis();
     folder = DateUtils.time2Date(DateUtils.PATTERN_DEFAULT, startTime);
+    isTracking = true;
 
     markDao.prepare(folder);
     startSensorTrack();
     startObdTrack();
+
+    if (wakeLock != null) {
+      wakeLock.acquire();
+    }
   }
 
   private void startSensorTrack() {
@@ -96,16 +129,51 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   }
 
   private void startObdTrack() {
+    obdModelList.clear();
+    trackView.updateObdData();
+    if (bluetoothDevice != null && obdDao != null) {
+      obdDao.start(bluetoothDevice, folder, new ObdDao.Callback() {
+        @Override
+        public void onError(String msg) {
+          ToastUtils.show(msg);
+        }
 
+        @Override
+        public void onCommandResult(ObdModel obdModel) {
+          if (obdModel == null) {
+            return;
+          }
+          boolean hasExist = false;
+          for (ObdModel model : obdModelList) {
+            if (model.command.equals(obdModel.command)) {
+              model.data = obdModel.data;
+              model.formattedData = obdModel.formattedData;
+              model.time = obdModel.time;
+              hasExist = true;
+              break;
+            }
+          }
+          if (!hasExist) {
+            obdModelList.add(obdModel);
+          }
+          trackView.updateObdData();
+        }
+      });
+    }
   }
 
   public void stopTrack() {
+    isTracking = false;
     stopSensorTrack();
     stopObdTrack();
     if (!TextUtils.isEmpty(folder)) {
-      trackView.showMarkerBottomSheet();
+      trackView.showMarkerBottomSheet(true);
     }
     endTime = System.currentTimeMillis();
+
+    if (wakeLock != null) {
+      wakeLock.release();
+    }
   }
 
   private void stopSensorTrack() {
@@ -116,7 +184,24 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   }
 
   private void stopObdTrack() {
+    if (obdDao != null) {
+      obdDao.stop();
+    }
+  }
 
+  @Override
+  public void selectBluetoothDevice() {
+    if (bluetoothAdapter != null) {
+      Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
+      List<BluetoothDevice> deviceList = new ArrayList<>(devices.size());
+      deviceList.addAll(devices);
+      trackView.showBluetoothDevice(deviceList);
+    }
+  }
+
+  @Override
+  public void connectBluetooth(BluetoothDevice device) {
+    bluetoothDevice = device;
   }
 
   public void openDisplayActivity() {
@@ -136,6 +221,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   @Override
   public void beginMark() {
     markTime = System.currentTimeMillis();
+    trackView.showMarkerBottomSheet(false);
   }
 
   @Override
@@ -154,6 +240,16 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
       markDao.stop();
       trackView.showAnalyseSnack();
     }
+  }
+
+  @Override
+  public void attachObdModelList(List<ObdModel> obdModels) {
+    this.obdModelList = obdModels;
+  }
+
+  @Override
+  public boolean isTracking() {
+    return isTracking;
   }
 
   @Override

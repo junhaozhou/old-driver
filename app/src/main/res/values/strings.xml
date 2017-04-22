@@ -33,4 +33,5 @@
     <!--bottom sheet mark-->
     <string name="header_mark_as">Mark As</string>
     <string name="title_pattern">模式</string>
+    <string name="menu_mark">Mark</string>
 </resources>

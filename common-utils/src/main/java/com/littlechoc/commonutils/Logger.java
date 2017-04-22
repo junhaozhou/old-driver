@@ -10,7 +10,7 @@ import java.util.Locale;
 
 public class Logger {
 
-  private static final boolean DEBUG = BuildConfig.DEBUG;
+  private static final boolean DEBUG = true;
 
   public static int v(String tag, String format, Object... params) {
     return DEBUG ? Log.v(tag, createMessage(format, params)) : 0;

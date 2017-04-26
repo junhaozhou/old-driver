@@ -117,10 +117,10 @@ public class SensorDetailPresenter implements SensorDetailContract.Presenter {
           return;
         }
         data.addAll(SensorDao.loadSensorData(folder, type));
-        if (type == Constants.SensorType.ACCELEROMETER) {
-          List<SensorModel> other = SensorDao.loadSensorData(folder, Constants.SensorType.MAGNETIC);
-          matrix(other);
-        }
+//        if (type == Constants.SensorType.ACCELEROMETER) {
+//          List<SensorModel> other = SensorDao.loadSensorData(folder, Constants.SensorType.MAGNETIC);
+//          matrix(other);
+//        }
         sendMessage(data);
       }
     }).start();

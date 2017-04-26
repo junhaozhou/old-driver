@@ -251,6 +251,16 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
                 trackPresenter.startTrack();
                 supportInvalidateOptionsMenu();
               }
+            })
+            .setOnCancelListener(new DialogInterface.OnCancelListener() {
+              @Override
+              public void onCancel(DialogInterface dialog) {
+                trackPresenter.connectBluetooth(null);
+                toggleTrackState(false);
+                isTracking = true;
+                trackPresenter.startTrack();
+                supportInvalidateOptionsMenu();
+              }
             });
     builder.show();
   }

@@ -184,7 +184,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   }
 
   private void stopObdTrack() {
-    if (obdDao != null) {
+    if (bluetoothDevice != null && obdDao != null) {
       obdDao.stop();
     }
   }

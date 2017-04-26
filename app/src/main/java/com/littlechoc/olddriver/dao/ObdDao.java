@@ -11,8 +11,12 @@ import com.littlechoc.olddriver.Application;
 import com.littlechoc.olddriver.model.sensor.ObdModel;
 import com.littlechoc.olddriver.obd.commands.ObdCommandInterval;
 import com.littlechoc.olddriver.obd.commands.ObdCommandProxy;
+import com.littlechoc.olddriver.obd.commands.RawObdCommand;
 import com.littlechoc.olddriver.obd.commands.SpeedObdCommand;
 import com.littlechoc.olddriver.obd.commands.engine.EngineRPMObdCommand;
+import com.littlechoc.olddriver.obd.commands.engine.EngineRuntimeObdCommand;
+import com.littlechoc.olddriver.obd.commands.engine.MassAirFlowObdCommand;
+import com.littlechoc.olddriver.obd.commands.pressure.FuelPressureObdCommand;
 import com.littlechoc.olddriver.utils.FileUtils;
 import com.littlechoc.olddriver.utils.JsonUtils;
 
@@ -208,6 +212,10 @@ public class ObdDao {
 
       toReadList.add(new ObdCommandInterval(new SpeedObdCommand(), 300));
       toReadList.add(new ObdCommandInterval(new EngineRPMObdCommand(), 300));
+      toReadList.add(new ObdCommandInterval(new MassAirFlowObdCommand(), 1000));
+      toReadList.add(new ObdCommandInterval(new FuelPressureObdCommand(), 1000));
+      toReadList.add(new ObdCommandInterval(new EngineRuntimeObdCommand(), 1000));
+      toReadList.add(new ObdCommandInterval(new RawObdCommand("01 33"), 5000));
     }
 
     private boolean connect() {
@@ -281,10 +289,11 @@ public class ObdDao {
     public void run() {
 
       long currentTime = System.currentTimeMillis();
-      for (ObdCommandInterval command : toReadList) {
-        if (command.canAdd(currentTime)) {
-          command.setLastTime(currentTime);
-          synchronized (lock) {
+      synchronized (lock) {
+        for (ObdCommandInterval command : toReadList) {
+          if (command.canAdd(currentTime)) {
+            command.setLastTime(currentTime);
+
             Logger.d(TAG, "#add new command[%s]", command.getName());
             commandList.add(new ObdCommandProxy(command.getOriginCommand()));
           }

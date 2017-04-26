@@ -34,7 +34,7 @@ public class EngineRPMObdCommand extends ObdCommand {
    */
   @Override
   public String getFormattedResult() {
-    if (!"NODATA".equals(getResult())) {
+    if (!"NODATA".equals(getResult()) && buffer.size() > 3) {
       // ignore first two bytes [41 0C] of the response
       int a = buffer.get(2);
       int b = buffer.get(3);

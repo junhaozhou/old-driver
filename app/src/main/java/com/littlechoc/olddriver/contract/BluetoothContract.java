@@ -12,7 +12,7 @@ import java.util.List;
  * @author Junhao Zhou 2017/3/18
  */
 
-public class BluetoothContract {
+public interface BluetoothContract {
 
   public interface View extends BaseView<Presenter> {
 

@@ -26,10 +26,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -59,7 +59,7 @@ public class ObdDao {
 
   private static final long INTERVAL_GENERATE = 10;
 
-  private final List<ObdCommandProxy> commandList;
+  private final BlockingQueue<ObdCommandProxy> commandList;
 
   private final List<ObdCommandInterval> toReadList;
 
@@ -85,12 +85,8 @@ public class ObdDao {
 
   private PublishSubject<ObdModel> subject;
 
-  private long startTime = 0L;
-
-  private final Object lock = new Object();
-
   public ObdDao() {
-    commandList = Collections.synchronizedList(new LinkedList<ObdCommandProxy>());
+    commandList = new LinkedBlockingQueue<>();
     toReadList = new ArrayList<>();
   }
 
@@ -99,12 +95,10 @@ public class ObdDao {
     this.folder = folder;
     this.device = device;
     internalCallback = new InternalCallback(callback);
-    startTime = System.currentTimeMillis();
 
     generateThread = new GenerateThread();
     generateThread.start();
     generateHandler = new Handler(generateThread.getLooper());
-    generateHandler.post(new GenerateRunnable());
 
     workThread = new WorkThread();
     workThread.start();
@@ -115,7 +109,7 @@ public class ObdDao {
   public void stop() {
     try {
       socket.close();
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     workHandler.removeCallbacksAndMessages(null);
@@ -154,6 +148,7 @@ public class ObdDao {
 
       //
       loadCommands();
+      generateHandler.post(new GenerateRunnable());
 
       // connect
       if (connect()) {
@@ -262,20 +257,20 @@ public class ObdDao {
       obdModel.data = command.getResult();
       obdModel.name = command.getName();
       obdModel.time = time;
+      obdModel.nanoTime = System.nanoTime();
       obdModel.formattedData = command.getFormattedResult();
       return obdModel;
     }
 
     private ObdCommandProxy getNextCommand() {
-      synchronized (lock) {
-        if (commandList.isEmpty()) {
-          return null;
-        } else {
-          ObdCommandProxy command = commandList.remove(0);
-          Logger.i(TAG, "#getNextCommand[%s]", command.getName());
-          return command;
-        }
+      ObdCommandProxy command = null;
+      try {
+        command = commandList.take();
+        Logger.i(TAG, "#getNextCommand[%s]", command.getName());
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
+      return command;
     }
 
     private void saveResult(ObdModel obdModel) {
@@ -289,15 +284,17 @@ public class ObdDao {
     public void run() {
 
       long currentTime = System.currentTimeMillis();
-      synchronized (lock) {
+      try {
         for (ObdCommandInterval command : toReadList) {
           if (command.canAdd(currentTime)) {
             command.setLastTime(currentTime);
 
             Logger.d(TAG, "#add new command[%s]", command.getName());
-            commandList.add(new ObdCommandProxy(command.getOriginCommand()));
+            commandList.put(new ObdCommandProxy(command.getOriginCommand()));
           }
         }
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
 
       generateHandler.postDelayed(this, INTERVAL_GENERATE);

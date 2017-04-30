@@ -77,11 +77,6 @@ public class SensorDao {
     if (isFilesCreate) {
       return;
     }
-    if (!FileUtils.createFolder(folderName)) {
-      throw new IllegalStateException(folderName + " create failure");
-    } else {
-      Logger.d(TAG, "CREATE FOLDER [%s]", folderName);
-    }
     if ((acceleFile = FileUtils.createFile(folderName, Constants.FILE_ACCELEROMETER)) == null) {
       throw new IllegalStateException(Constants.FILE_ACCELEROMETER + " create failure");
     } else {

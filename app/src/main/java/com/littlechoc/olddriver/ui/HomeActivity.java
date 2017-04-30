@@ -1,17 +1,13 @@
 package com.littlechoc.olddriver.ui;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
@@ -20,20 +16,17 @@ import android.view.View;
 
 import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.R;
-import com.littlechoc.olddriver.contract.TrackContract;
+import com.littlechoc.olddriver.contract.HomeContract;
 import com.littlechoc.olddriver.model.PatternCategory;
-import com.littlechoc.olddriver.model.sensor.ObdModel;
-import com.littlechoc.olddriver.presenter.TrackPresenter;
-import com.littlechoc.olddriver.ui.adapter.ObdDataAdapter;
+import com.littlechoc.olddriver.presenter.HomePresenter;
+import com.littlechoc.olddriver.ui.adapter.RealTimeDisplayFragmentAdapter;
 import com.littlechoc.olddriver.ui.base.BaseActivity;
 import com.littlechoc.olddriver.ui.base.BaseAdapter;
 import com.littlechoc.olddriver.ui.view.CustomNavigationView;
 import com.littlechoc.olddriver.ui.view.MarkBottomSheet;
+import com.littlechoc.olddriver.ui.view.ViewPagerEx;
 import com.littlechoc.olddriver.utils.PermissionUtils;
 import com.littlechoc.olddriver.utils.ToastUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -42,7 +35,7 @@ import butterknife.OnClick;
  * @author Junhao Zhou 2017/3/7
  */
 
-public class HomeActivity extends BaseActivity implements TrackContract.View {
+public class HomeActivity extends BaseActivity implements HomeContract.View {
 
   public static final String TAG = "HomeActivity";
 
@@ -61,18 +54,15 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   @BindView(R.id.track_switch)
   FloatingActionButton trackSwitch;
 
-  @BindView(R.id.obd_data_list)
-  RecyclerView obdDataList;
+  @BindView(R.id.tab_layout)
+  TabLayout tabLayout;
 
-  private ObdDataAdapter obdDataAdapter;
+  @BindView(R.id.container)
+  ViewPagerEx realTimeViewPager;
 
-  private ActionBarDrawerToggle drawerToggle;
+  private boolean isRecording = false;
 
-  private boolean isTracking = false;
-
-  private TrackContract.Presenter trackPresenter;
-
-  private List<ObdModel> obdModelList;
+  private HomeContract.Presenter homePresenter;
 
   @Override
   public int getRootView() {
@@ -83,24 +73,26 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    new TrackPresenter(this);
-
-    obdModelList = new ArrayList<>();
-    trackPresenter.attachObdModelList(obdModelList);
+    init();
     initView();
   }
 
+  private void init() {
+    new HomePresenter(this);
+  }
 
   private void initView() {
     setSupportActionBar(titleBar);
     titleBar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        drawerLayout.openDrawer(Gravity.START);
+        if (!isRecording) {
+          drawerLayout.openDrawer(Gravity.START);
+        }
       }
     });
 
-    drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+    ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
             R.string.open_drawer_content_desc, R.string.close_drawer_content_desc);
     drawerLayout.addDrawerListener(drawerToggle);
 
@@ -108,14 +100,16 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
 
     trackSwitch.setImageResource(R.drawable.ic_start_track);
 
-    obdDataAdapter = new ObdDataAdapter(obdModelList);
-    obdDataList.setLayoutManager(new LinearLayoutManager(getContext()));
-    obdDataList.setAdapter(obdDataAdapter);
+    RealTimeDisplayFragmentAdapter fragmentAdapter = new RealTimeDisplayFragmentAdapter(getSupportFragmentManager(), homePresenter.getRealDisplayFragment());
+    realTimeViewPager.setAdapter(fragmentAdapter);
+
+    tabLayout.setupWithViewPager(realTimeViewPager);
+    tabLayout.setTabMode(TabLayout.MODE_FIXED);
   }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu_main_activity, menu);
+    getMenuInflater().inflate(R.menu.menu_home_activity, menu);
     return super.onCreateOptionsMenu(menu);
   }
 
@@ -123,8 +117,15 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   public boolean onPrepareOptionsMenu(Menu menu) {
     MenuItem item = menu.findItem(R.id.mark);
     if (item != null) {
-      item.setVisible(trackPresenter.isTracking());
-      return true;
+      item.setVisible(homePresenter.isRecording());
+    }
+    item = menu.findItem(R.id.menu_display_style);
+    if (item != null) {
+      item.setVisible(homePresenter.isRecording());
+    }
+    item = menu.findItem(R.id.menu_sensor_log);
+    if (item != null) {
+      item.setVisible(homePresenter.isRecording());
     }
     return super.onPrepareOptionsMenu(menu);
   }
@@ -132,14 +133,8 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.enable_sensor_log:
-        trackPresenter.setIfLogSensor(true);
-        break;
-      case R.id.disable_sensor_log:
-        trackPresenter.setIfLogSensor(false);
-        break;
       case R.id.mark:
-        trackPresenter.beginMark();
+        homePresenter.beginMark();
         break;
     }
     return super.onOptionsItemSelected(item);
@@ -148,7 +143,7 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    trackPresenter.onDestroy();
+    homePresenter.onDestroy();
   }
 
   private static final long THRESHOLD = 1000 * 2;
@@ -171,14 +166,15 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
             new PermissionUtils.OnPermissionGranted() {
               @Override
               public void onPermissionGranted() {
-                if (isTracking) {
-                  trackPresenter.stopTrack();
-                  toggleTrackState(true);
-                  isTracking = false;
-                  supportInvalidateOptionsMenu();
+                if (isRecording) {
+                  homePresenter.stop();
                 } else {
-                  trackPresenter.selectBluetoothDevice();
+                  homePresenter.start();
                 }
+                drawerLayout.setDrawerLockMode(isRecording ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                toggleTrackState(isRecording);
+                isRecording = !isRecording;
+                supportInvalidateOptionsMenu();
               }
             });
   }
@@ -194,12 +190,12 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
   }
 
   public void onAnalyseClick() {
-    trackPresenter.openDisplayActivity();
+    homePresenter.openDisplayActivity();
   }
 
   @Override
-  public void setPresenter(TrackContract.Presenter presenter) {
-    trackPresenter = presenter;
+  public void setPresenter(HomeContract.Presenter presenter) {
+    homePresenter = presenter;
   }
 
   @Override
@@ -224,49 +220,9 @@ public class HomeActivity extends BaseActivity implements TrackContract.View {
       @Override
       public void onItemClick(int position) {
         Logger.d(TAG, "on mark click: " + position);
-        trackPresenter.saveMarker(position, isLast);
+        homePresenter.saveMarker(position, isLast);
       }
     });
     bottomSheet.show(getSupportFragmentManager(), "MarkBottomSheet");
-  }
-
-  private List<BluetoothDevice> deviceList;
-
-  @Override
-  public void showBluetoothDevice(List<BluetoothDevice> devices) {
-    this.deviceList = devices;
-    String[] devicesArray = new String[deviceList.size()];
-    for (int i = 0; i < deviceList.size(); i++) {
-      devicesArray[i] = deviceList.get(i).getName();
-    }
-    AlertDialog.Builder builder
-            = new AlertDialog.Builder(getContext())
-            .setTitle("选择蓝牙设备")
-            .setItems(devicesArray, new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                trackPresenter.connectBluetooth(deviceList.get(which));
-                toggleTrackState(false);
-                isTracking = true;
-                trackPresenter.startTrack();
-                supportInvalidateOptionsMenu();
-              }
-            })
-            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-              @Override
-              public void onCancel(DialogInterface dialog) {
-                trackPresenter.connectBluetooth(null);
-                toggleTrackState(false);
-                isTracking = true;
-                trackPresenter.startTrack();
-                supportInvalidateOptionsMenu();
-              }
-            });
-    builder.show();
-  }
-
-  @Override
-  public void updateObdData() {
-    obdDataAdapter.notifyDataSetChanged();
   }
 }

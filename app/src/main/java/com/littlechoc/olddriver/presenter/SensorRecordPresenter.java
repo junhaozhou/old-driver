@@ -1,51 +1,37 @@
 package com.littlechoc.olddriver.presenter;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.PowerManager;
-import android.text.TextUtils;
 
 import com.littlechoc.commonutils.Logger;
 import com.littlechoc.olddriver.Constants;
-import com.littlechoc.olddriver.contract.TrackContract;
-import com.littlechoc.olddriver.dao.MarkDao;
-import com.littlechoc.olddriver.dao.ObdDao;
+import com.littlechoc.olddriver.contract.SensorRecordContract;
 import com.littlechoc.olddriver.dao.SensorDao;
-import com.littlechoc.olddriver.model.MarkModel;
 import com.littlechoc.olddriver.model.sensor.AccelerometerModel;
 import com.littlechoc.olddriver.model.sensor.GyroscopeModel;
 import com.littlechoc.olddriver.model.sensor.MagneticModel;
-import com.littlechoc.olddriver.model.sensor.ObdModel;
-import com.littlechoc.olddriver.ui.DisplayActivity;
-import com.littlechoc.olddriver.utils.DateUtils;
 import com.littlechoc.olddriver.utils.SpUtils;
-import com.littlechoc.olddriver.utils.ToastUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
- * @author Junhao Zhou 2017/3/12
+ * @author Junhao Zhou 2017/4/28
  */
 
-public class TrackPresenter implements TrackContract.Presenter, SensorEventListener {
+public class SensorRecordPresenter implements SensorRecordContract.Presenter, SensorEventListener {
 
-  public static final String TAG = "TrackPresenter";
+  public static final String TAG = "SensorRecordPresenter";
 
-  private SensorManager sensorManager;
+  private SensorRecordContract.View recordView;
+
+  private boolean logSensor = false;
+
+  private String folder;
 
   private SensorDao sensorDao;
 
-  private MarkDao markDao;
-
-  private ObdDao obdDao;
+  private SensorManager sensorManager;
 
   private Sensor accelerometerSensor;
 
@@ -53,45 +39,18 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
 
   private Sensor gyroscopeSensor;
 
-  private TrackContract.View trackView;
+  public SensorRecordPresenter(SensorRecordContract.View recordView) {
+    this.recordView = recordView;
+    recordView.setPresenter(this);
 
-  private String folder;
-
-  private boolean logSensor;
-
-  private long startTime = 0;
-
-  private long endTime = 0;
-
-  private BluetoothAdapter bluetoothAdapter;
-
-  private BluetoothDevice bluetoothDevice;
-
-  private PowerManager.WakeLock wakeLock;
-
-  private List<ObdModel> obdModelList;
-
-  private boolean isTracking;
-
-  public TrackPresenter(TrackContract.View trackView) {
-    assert trackView != null;
-    this.trackView = trackView;
-    sensorDao = new SensorDao();
-    markDao = new MarkDao();
-    obdDao = new ObdDao();
-
-    bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    initSensor();
-    trackView.setPresenter(this);
     logSensor = SpUtils.getSensorLog();
-
-    PowerManager powerManager = (PowerManager) trackView.getContext().getSystemService(Context.POWER_SERVICE);
-    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wake tag");
+    sensorDao = new SensorDao();
+    initSensor();
   }
 
   private void initSensor() {
     if (sensorManager == null) {
-      sensorManager = (SensorManager) trackView.getContext().getSystemService(Context.SENSOR_SERVICE);
+      sensorManager = (SensorManager) recordView.getContext().getSystemService(Context.SENSOR_SERVICE);
     }
     if (magneticSensor == null) {
       magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -104,21 +63,15 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     }
   }
 
-  public void startTrack() {
-    startTime = System.currentTimeMillis();
-    folder = DateUtils.time2Date(DateUtils.PATTERN_DEFAULT, startTime);
-    isTracking = true;
-
-    markDao.prepare(folder);
-    startSensorTrack();
-    startObdTrack();
-
-    if (wakeLock != null) {
-      wakeLock.acquire();
-    }
+  @Override
+  public void prepare(String folder) {
+    this.folder = folder;
+    sensorDao.prepare(folder);
+    recordView.clear();
   }
 
-  private void startSensorTrack() {
+  @Override
+  public void start() {
     sensorDao.prepare(folder);
     sensorDao.saveSensorInfo(magneticSensor, Constants.SensorType.MAGNETIC);
     sensorDao.saveSensorInfo(accelerometerSensor, Constants.SensorType.ACCELEROMETER);
@@ -128,128 +81,23 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
     sensorManager.registerListener(this, gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);
   }
 
-  private void startObdTrack() {
-    obdModelList.clear();
-    trackView.updateObdData();
-    if (bluetoothDevice != null && obdDao != null) {
-      obdDao.start(bluetoothDevice, folder, new ObdDao.Callback() {
-        @Override
-        public void onError(String msg) {
-          ToastUtils.show(msg);
-        }
-
-        @Override
-        public void onCommandResult(ObdModel obdModel) {
-          if (obdModel == null) {
-            return;
-          }
-          boolean hasExist = false;
-          for (ObdModel model : obdModelList) {
-            if (model.command.equals(obdModel.command)) {
-              model.data = obdModel.data;
-              model.formattedData = obdModel.formattedData;
-              model.time = obdModel.time;
-              hasExist = true;
-              break;
-            }
-          }
-          if (!hasExist) {
-            obdModelList.add(obdModel);
-          }
-          trackView.updateObdData();
-        }
-      });
-    }
-  }
-
-  public void stopTrack() {
-    isTracking = false;
-    stopSensorTrack();
-    stopObdTrack();
-    if (!TextUtils.isEmpty(folder)) {
-      trackView.showMarkerBottomSheet(true);
-    }
-    endTime = System.currentTimeMillis();
-
-    if (wakeLock != null) {
-      wakeLock.release();
-    }
-  }
-
-  private void stopSensorTrack() {
+  @Override
+  public void stop() {
     sensorManager.unregisterListener(this, magneticSensor);
     sensorManager.unregisterListener(this, accelerometerSensor);
     sensorManager.unregisterListener(this, gyroscopeSensor);
     sensorDao.stop();
   }
 
-  private void stopObdTrack() {
-    if (bluetoothDevice != null && obdDao != null) {
-      obdDao.stop();
-    }
+  @Override
+  public void toggleLogSensor() {
+    logSensor = !logSensor;
+    SpUtils.setSensorLog(logSensor);
   }
 
   @Override
-  public void selectBluetoothDevice() {
-    if (bluetoothAdapter != null) {
-      Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
-      List<BluetoothDevice> deviceList = new ArrayList<>(devices.size());
-      deviceList.addAll(devices);
-      trackView.showBluetoothDevice(deviceList);
-    }
-  }
-
-  @Override
-  public void connectBluetooth(BluetoothDevice device) {
-    bluetoothDevice = device;
-  }
-
-  public void openDisplayActivity() {
-    Intent intent = new Intent(trackView.getContext(), DisplayActivity.class);
-    intent.putExtra(Constants.KEY_FOLDER_NAME, folder);
-    trackView.getContext().startActivity(intent);
-  }
-
-  @Override
-  public void setIfLogSensor(boolean ifLog) {
-    logSensor = ifLog;
-    SpUtils.setSensorLog(ifLog);
-  }
-
-  private long markTime = 0L;
-
-  @Override
-  public void beginMark() {
-    markTime = System.currentTimeMillis();
-    trackView.showMarkerBottomSheet(false);
-  }
-
-  @Override
-  public void saveMarker(int type, boolean last) {
-    MarkModel markModel = new MarkModel();
-    if (last) {
-      markModel.begin = startTime;
-      markModel.end = endTime;
-    } else {
-      markModel.begin = markTime;
-      markModel.end = System.currentTimeMillis();
-    }
-    markModel.type = type;
-    markDao.saveMark(markModel);
-    if (last) {
-      markDao.stop();
-      trackView.showAnalyseSnack();
-    }
-  }
-
-  @Override
-  public void attachObdModelList(List<ObdModel> obdModels) {
-    this.obdModelList = obdModels;
-  }
-
-  @Override
-  public boolean isTracking() {
-    return isTracking;
+  public boolean ifLogSensor() {
+    return logSensor;
   }
 
   @Override
@@ -263,6 +111,7 @@ public class TrackPresenter implements TrackContract.Presenter, SensorEventListe
   public void onSensorChanged(SensorEvent event) {
     if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
       AccelerometerModel model = AccelerometerModel.newInstance(event);
+      recordView.onNewData(event.values[0], event.values[1], event.values[2]);
       sensorDao.saveAccelerometerData(model);
       logAccelerometer(event);
     } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {

@@ -10,7 +10,7 @@ import java.util.List;
  * @author Junhao Zhou 2017/3/17
  */
 
-public class HistoryContract {
+public interface HistoryContract {
 
   public interface View extends BaseView<Presenter> {
 

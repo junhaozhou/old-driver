@@ -36,6 +36,16 @@ public class SpUtils {
     return getPreferences().getBoolean(Constants.KEY_AUTO_CONNECT_BLUETOOTH, true);
   }
 
+  public static void saveBluetoothAddress(String address) {
+    SharedPreferences.Editor editor = getPreferences().edit();
+    editor.putString(Constants.KEY_BLUETOOTH_ADDRESS, address);
+    commit(editor);
+  }
+
+  public static String getSavedBluetoothAddress() {
+    return getPreferences().getString(Constants.KEY_BLUETOOTH_ADDRESS, "");
+  }
+
   public static void setLatestConnectedDevice(String address) {
     SharedPreferences.Editor editor = getPreferences().edit();
     editor.putString(Constants.KEY_LATEST_DEVICE, address);

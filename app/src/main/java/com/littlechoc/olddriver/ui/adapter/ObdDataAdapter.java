@@ -37,7 +37,7 @@ public class ObdDataAdapter extends BaseAdapter<ObdDataAdapter.ViewHolder> {
   public void onBindViewHolder(ViewHolder holder, int position) {
     ObdModel obdModel = obdModelList.get(position);
     holder.commandName.setText(obdModel.name);
-    holder.commandValue.setText(String.format(Locale.CHINA, "%s(%s) %s",
+    holder.commandValue.setText(String.format(Locale.CHINA, "%s(%s)\n%s",
             obdModel.formattedData, obdModel.data,
             DateUtils.time2Date(DateUtils.PATTERN_DEFAULT, obdModel.time)));
   }

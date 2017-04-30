@@ -128,6 +128,7 @@ public class BluetoothPresenter implements BluetoothContract.Presenter {
           device.setPin("1234".getBytes());
           BluetoothSocket socket = device.createRfcommSocketToServiceRecord(MY_UUID);
           socket.connect();
+          socket.close();
           Logger.i(TAG, "connect success");
         } catch (IOException e) {
           e.printStackTrace();

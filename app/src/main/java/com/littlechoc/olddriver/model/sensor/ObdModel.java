@@ -15,6 +15,8 @@ public class ObdModel implements Parcelable {
 
   public long time;
 
+  public long nanoTime;
+
   public String name;
 
   public String formattedData;
@@ -32,6 +34,7 @@ public class ObdModel implements Parcelable {
     dest.writeString(this.command);
     dest.writeString(this.data);
     dest.writeLong(this.time);
+    dest.writeLong(this.nanoTime);
     dest.writeString(this.name);
     dest.writeString(this.formattedData);
   }
@@ -40,6 +43,7 @@ public class ObdModel implements Parcelable {
     this.command = in.readString();
     this.data = in.readString();
     this.time = in.readLong();
+    this.nanoTime = in.readLong();
     this.name = in.readString();
     this.formattedData = in.readString();
   }
